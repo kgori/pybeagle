@@ -2,6 +2,8 @@ import pybeagle
 import numpy as np
 import logging
 
+print pybeagle.get_citation()
+
 def prep(l, astype):
     return np.ascontiguousarray(np.array(l).flatten(), dtype=astype)
 

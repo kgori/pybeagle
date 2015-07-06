@@ -1,23 +1,11 @@
-from  libcpp.string  cimport string as libcpp_string
-from  libcpp.vector  cimport vector as libcpp_vector
-from  libcpp.pair    cimport pair   as libcpp_pair
-from  libcpp cimport bool
 from  libc.string cimport const_char
-from  libcpp.string  cimport string as libcpp_string
-from  libcpp.set     cimport set as libcpp_set
-from  libcpp.vector  cimport vector as libcpp_vector
-from  libcpp.pair    cimport pair as libcpp_pair
-from  libcpp.map     cimport map  as libcpp_map
 from  smart_ptr cimport shared_ptr
-from  AutowrapRefHolder cimport AutowrapRefHolder
-from  libcpp cimport bool
-from  libc.string cimport const_char
-from cython.operator cimport dereference as deref, preincrement as inc, address as address
-
-
 import numpy as np
 cimport numpy as np
 cimport cython
+
+cdef extern from "autowrap_tools.hpp":
+    char * _cast_const_away(char *)
 
 ctypedef np.float64_t DOUBLE
 ctypedef int INT
@@ -26,6 +14,8 @@ np.import_array()
 
 # PXD declaration of beagle header
 cdef extern from "libhmsbeagle/beagle.h":
+    const_char* beagleGetVersion()
+    const_char* beagleGetCitation()
     int beagleSetTipStates(int instance, int tip_index, const int* in_states)
     int beagleSetTipPartials(int instance, int tip_index, const double* in_states)
     int beagleSetPartials(int instance, int buffer_index, const double* in_partials)
@@ -40,7 +30,6 @@ cdef extern from "libhmsbeagle/beagle.h":
     int beagleSetTransitionMatrix(int instance, int matrixIndex, const double* inMatrix, double paddedValue)
     int beagleGetTransitionMatrix(int instance, int matrixIndex, double* outMatrix)
     int beagleSetTransitionMatrices(int instance, const int* matrixIndices, const double* inMatrices, const double* paddedValues, int count)
-    # int beagleUpdatePartials(const int instance, const BeagleOperation* operations, int operationCount, int cumulativeScaleIndex)
     int beagleWaitForPartials(const int instance, const int* destinationPartials, int destinationPartialsCount)
     int beagleAccumulateScaleFactors(int instance, const int* scaleIndices, int count, int cumulativeScaleIndex)
     int beagleRemoveScaleFactors(int instance, const int* scaleIndices, int count, int cumulativeScaleIndex)
@@ -52,8 +41,100 @@ cdef extern from "libhmsbeagle/beagle.h":
     int beagleGetSiteLogLikelihoods(int instance, double* outLogLikelihoods)
     int beagleGetSiteDerivatives(int instance, double* outFirstDerivatives, double* outSecondDerivatives)
 
-    ctypedef struct BeagleOperation:
-        pass
+    ctypedef enum BeagleFlags_wrap "BeagleFlags":
+        _PRECISION_SINGLE "BEAGLE_FLAG_PRECISION_SINGLE"
+        _PRECISION_DOUBLE "BEAGLE_FLAG_PRECISION_DOUBLE"
+        _COMPUTATION_SYNCH "BEAGLE_FLAG_COMPUTATION_SYNCH"
+        _COMPUTATION_ASYNCH "BEAGLE_FLAG_COMPUTATION_ASYNCH"
+        _EIGEN_REAL "BEAGLE_FLAG_EIGEN_REAL"
+        _EIGEN_COMPLEX "BEAGLE_FLAG_EIGEN_COMPLEX"
+        _SCALING_MANUAL "BEAGLE_FLAG_SCALING_MANUAL"
+        _SCALING_AUTO "BEAGLE_FLAG_SCALING_AUTO"
+        _SCALING_ALWAYS "BEAGLE_FLAG_SCALING_ALWAYS"
+        _SCALING_DYNAMIC "BEAGLE_FLAG_SCALING_DYNAMIC"
+        _SCALERS_RAW "BEAGLE_FLAG_SCALERS_RAW"
+        _SCALERS_LOG "BEAGLE_FLAG_SCALERS_LOG"
+        _INVEVEC_STANDARD "BEAGLE_FLAG_INVEVEC_STANDARD"
+        _INVEVEC_TRANSPOSED "BEAGLE_FLAG_INVEVEC_TRANSPOSED"
+        _VECTOR_SSE "BEAGLE_FLAG_VECTOR_SSE"
+        _VECTOR_AVX "BEAGLE_FLAG_VECTOR_AVX"
+        _VECTOR_NONE "BEAGLE_FLAG_VECTOR_NONE"
+        _THREADING_OPENMP "BEAGLE_FLAG_THREADING_OPENMP"
+        _THREADING_NONE "BEAGLE_FLAG_THREADING_NONE"
+        _PROCESSOR_CPU "BEAGLE_FLAG_PROCESSOR_CPU"
+        _PROCESSOR_GPU "BEAGLE_FLAG_PROCESSOR_GPU"
+        _PROCESSOR_FPGA "BEAGLE_FLAG_PROCESSOR_FPGA"
+        _PROCESSOR_CELL "BEAGLE_FLAG_PROCESSOR_CELL"
+        _PROCESSOR_PHI "BEAGLE_FLAG_PROCESSOR_PHI"
+        _PROCESSOR_OTHER "BEAGLE_FLAG_PROCESSOR_OTHER"
+        _FRAMEWORK_CUDA "BEAGLE_FLAG_FRAMEWORK_CUDA"
+        _FRAMEWORK_OPENCL "BEAGLE_FLAG_FRAMEWORK_OPENCL"
+        _FRAMEWORK_CPU "BEAGLE_FLAG_FRAMEWORK_CPU"
+
+# PYX definition of flags
+@cython.internal
+cdef class _BeagleFlags:
+    cdef:
+        readonly long PRECISION_SINGLE
+        readonly long PRECISION_DOUBLE
+        readonly long COMPUTATION_SYNCH
+        readonly long COMPUTATION_ASYNCH
+        readonly long EIGEN_REAL
+        readonly long EIGEN_COMPLEX
+        readonly long SCALING_MANUAL
+        readonly long SCALING_AUTO
+        readonly long SCALING_ALWAYS
+        readonly long SCALING_DYNAMIC
+        readonly long SCALERS_RAW
+        readonly long SCALERS_LOG
+        readonly long INVEVEC_STANDARD
+        readonly long INVEVEC_TRANSPOSED
+        readonly long VECTOR_SSE
+        readonly long VECTOR_AVX
+        readonly long VECTOR_NONE
+        readonly long THREADING_OPENMP
+        readonly long THREADING_NONE
+        readonly long PROCESSOR_CPU
+        readonly long PROCESSOR_GPU
+        readonly long PROCESSOR_FPGA
+        readonly long PROCESSOR_CELL
+        readonly long PROCESSOR_PHI
+        readonly long PROCESSOR_OTHER
+        readonly long FRAMEWORK_CUDA
+        readonly long FRAMEWORK_OPENCL
+        readonly long FRAMEWORK_CPU
+
+    def __cinit__(self):
+        self.PRECISION_SINGLE = _PRECISION_SINGLE
+        self.PRECISION_DOUBLE = _PRECISION_DOUBLE
+        self.COMPUTATION_SYNCH = _COMPUTATION_SYNCH
+        self.COMPUTATION_ASYNCH = _COMPUTATION_ASYNCH
+        self.EIGEN_REAL = _EIGEN_REAL
+        self.EIGEN_COMPLEX = _EIGEN_COMPLEX
+        self.SCALING_MANUAL = _SCALING_MANUAL
+        self.SCALING_AUTO = _SCALING_AUTO
+        self.SCALING_ALWAYS = _SCALING_ALWAYS
+        self.SCALING_DYNAMIC = _SCALING_DYNAMIC
+        self.SCALERS_RAW = _SCALERS_RAW
+        self.SCALERS_LOG = _SCALERS_LOG
+        self.INVEVEC_STANDARD = _INVEVEC_STANDARD
+        self.INVEVEC_TRANSPOSED = _INVEVEC_TRANSPOSED
+        self.VECTOR_SSE = _VECTOR_SSE
+        self.VECTOR_AVX = _VECTOR_AVX
+        self.VECTOR_NONE = _VECTOR_NONE
+        self.THREADING_OPENMP = _THREADING_OPENMP
+        self.THREADING_NONE = _THREADING_NONE
+        self.PROCESSOR_CPU = _PROCESSOR_CPU
+        self.PROCESSOR_GPU = _PROCESSOR_GPU
+        self.PROCESSOR_FPGA = _PROCESSOR_FPGA
+        self.PROCESSOR_CELL = _PROCESSOR_CELL
+        self.PROCESSOR_PHI = _PROCESSOR_PHI
+        self.PROCESSOR_OTHER = _PROCESSOR_OTHER
+        self.FRAMEWORK_CUDA = _FRAMEWORK_CUDA
+        self.FRAMEWORK_OPENCL = _FRAMEWORK_OPENCL
+        self.FRAMEWORK_CPU = _FRAMEWORK_CPU
+
+BeagleFlags = _BeagleFlags()
 
 # PXD declaration of beagle_wrapper header, to wrap interface to beagle instance
 cdef extern from "src/beagle_wrapper.h":
@@ -95,7 +176,31 @@ cdef class BeagleInstance:
 
 
 # PYX definitions of beagle functions
+def get_version():
+    cdef const_char *retval = _cast_const_away(beagleGetVersion())
+    py_result = <const_char *>(retval)
+    return py_result
+
+def get_citation():
+    cdef const_char *retval = _cast_const_away(beagleGetCitation())
+    py_result = <const_char *>(retval)
+    return py_result
+
 def set_tip_states(int instance, int tip_index, np.ndarray[INT,ndim=1] in_states):
+    """
+    Set the compact state representation for tip node
+    
+    This function copies a compact state representation into an instance buffer.
+    Compact state representation is an array of states: 0 to stateCount - 1 (missing = stateCount).
+    The inStates array should be patternCount in length (replication across categoryCount is not
+    required).
+    
+    @param instance  Instance number (input)
+    @param tipIndex  Index of destination compactBuffer (input)
+    @param inStates  numpy array (dtype=intc) to compact states (input)
+    
+    @return error code
+    """
     retval = beagleSetTipStates(instance, tip_index, <int*>&in_states[0])
     return retval
 
