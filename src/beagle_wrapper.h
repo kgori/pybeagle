@@ -24,6 +24,4 @@ private:
 
 int beagle_update_partials(const int instance, const int* operations, int operationCount, int cumulativeScaleIndex);
 
-// };
-
 #endif  /* __BEAGLE_WRAPPER_H__ */

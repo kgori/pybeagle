@@ -4,6 +4,11 @@ import logging
 
 print pybeagle.get_citation()
 
+
+resources = pybeagle.get_resource_list()
+print resources[0]
+
+
 def prep(l, astype):
     return np.ascontiguousarray(np.array(l).flatten(), dtype=astype)
 
@@ -82,7 +87,6 @@ operations = prep([5, BEAGLE_OP_NONE, BEAGLE_OP_NONE, 0, 0, 1, 1,
                    7, BEAGLE_OP_NONE, BEAGLE_OP_NONE, 3, 3, 4, 4], astype=np.intc)
 assert pybeagle.update_partials(i, operations, 3, BEAGLE_OP_NONE) == 0, 'Error'
 
-
 parent_index = prep([7], np.intc)
 child_index = prep([6], np.intc)
 edge_p_index = prep([6], np.intc)
@@ -114,3 +118,12 @@ print lnl, dlnl, d2lnl
 
 out_partials = prep(np.zeros(partials_a.size), np.float64)
 pybeagle.get_partials(i, 7, -1, out_partials)
+
+out_site_lnl = prep(np.zeros(len(a)), np.float64)
+out_site_dlnl = prep(np.zeros(len(a)), np.float64)
+out_site_d2lnl = prep(np.zeros(len(a)), np.float64)
+pybeagle.get_site_log_likelihoods(i, out_site_lnl)
+pybeagle.get_site_derivatives(i, out_site_dlnl, out_site_d2lnl)
+# print out_site_lnl, out_site_lnl.sum()
+# print out_site_dlnl, out_site_dlnl.sum()
+# print out_site_d2lnl, out_site_d2lnl.sum()

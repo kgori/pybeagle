@@ -71,6 +71,7 @@ cdef extern from "libhmsbeagle/beagle.h":
         _FRAMEWORK_OPENCL "BEAGLE_FLAG_FRAMEWORK_OPENCL"
         _FRAMEWORK_CPU "BEAGLE_FLAG_FRAMEWORK_CPU"
 
+
 # PYX definition of flags
 @cython.internal
 cdef class _BeagleFlags:

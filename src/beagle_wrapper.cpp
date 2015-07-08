@@ -15,3 +15,8 @@ int beagle_update_partials(const int instance, const int* operations, int operat
     }
     return beagleUpdatePartials(instance, bops.data(), operationCount, cumulativeScaleIndex);
 }
+
+BeagleResource* new_beagle_resource() {
+    BeagleResource* br = new BeagleResource();
+    return br;
+}

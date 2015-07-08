@@ -9,237 +9,99 @@ from  AutowrapRefHolder cimport AutowrapRefHolder
 from  libcpp cimport bool
 from  libc.string cimport const_char
 from cython.operator cimport dereference as deref, preincrement as inc, address as address
-from pybeagle_h cimport BeagleResourcePtr
-from pybeagle_h cimport beagleGetCitation as _beagleGetCitation_pybeagle_h
-from pybeagle_h cimport beagleGetVersion as _beagleGetVersion_pybeagle_h
-from pybeagle_h cimport BeagleInstanceDetails as _BeagleInstanceDetails
-from pybeagle_h cimport BeagleResource as _BeagleResource
-from pybeagle_h cimport beagle as _beagle
-from pybeagle_h cimport beagle_flags as _beagle_flags
-from pybeagle_h cimport beagle_instance as _beagle_instance
+cimport pybeagle_h as h
+from pybeagle_h cimport BeagleResource as BeagleResource_wrap
+from pybeagle_h cimport BeagleResourceList as BeagleResourceList_wrap
+cimport cython 
+import numpy as np
+cimport numpy as np
+
+ctypedef np.float64_t DOUBLE
+ctypedef int INT
+
 cdef extern from "autowrap_tools.hpp":
     char * _cast_const_away(char *)
 
-def beagleGetCitation():
-    cdef const_char  * _r = _cast_const_away(_beagleGetCitation_pybeagle_h())
-    py_result = <const_char *>(_r)
-    return py_result
+@cython.internal
+cdef class _BeagleFlags:
+    cdef:
+        readonly long PRECISION_SINGLE
+        readonly long PRECISION_DOUBLE
+        readonly long COMPUTATION_SYNCH
+        readonly long COMPUTATION_ASYNCH
+        readonly long EIGEN_REAL
+        readonly long EIGEN_COMPLEX
+        readonly long SCALING_MANUAL
+        readonly long SCALING_AUTO
+        readonly long SCALING_ALWAYS
+        readonly long SCALING_DYNAMIC
+        readonly long SCALERS_RAW
+        readonly long SCALERS_LOG
+        readonly long INVEVEC_STANDARD
+        readonly long INVEVEC_TRANSPOSED
+        readonly long VECTOR_SSE
+        readonly long VECTOR_AVX
+        readonly long VECTOR_NONE
+        readonly long THREADING_OPENMP
+        readonly long THREADING_NONE
+        readonly long PROCESSOR_CPU
+        readonly long PROCESSOR_GPU
+        readonly long PROCESSOR_FPGA
+        readonly long PROCESSOR_CELL
+        readonly long PROCESSOR_PHI
+        readonly long PROCESSOR_OTHER
+        readonly long FRAMEWORK_CUDA
+        readonly long FRAMEWORK_OPENCL
+        readonly long FRAMEWORK_CPU
 
-def beagleGetVersion():
-    cdef const_char  * _r = _cast_const_away(_beagleGetVersion_pybeagle_h())
-    py_result = <const_char *>(_r)
-    return py_result 
+    def __cinit__(self):
+        self.PRECISION_SINGLE = h._PRECISION_SINGLE
+        self.PRECISION_DOUBLE = h._PRECISION_DOUBLE
+        self.COMPUTATION_SYNCH = h._COMPUTATION_SYNCH
+        self.COMPUTATION_ASYNCH = h._COMPUTATION_ASYNCH
+        self.EIGEN_REAL = h._EIGEN_REAL
+        self.EIGEN_COMPLEX = h._EIGEN_COMPLEX
+        self.SCALING_MANUAL = h._SCALING_MANUAL
+        self.SCALING_AUTO = h._SCALING_AUTO
+        self.SCALING_ALWAYS = h._SCALING_ALWAYS
+        self.SCALING_DYNAMIC = h._SCALING_DYNAMIC
+        self.SCALERS_RAW = h._SCALERS_RAW
+        self.SCALERS_LOG = h._SCALERS_LOG
+        self.INVEVEC_STANDARD = h._INVEVEC_STANDARD
+        self.INVEVEC_TRANSPOSED = h._INVEVEC_TRANSPOSED
+        self.VECTOR_SSE = h._VECTOR_SSE
+        self.VECTOR_AVX = h._VECTOR_AVX
+        self.VECTOR_NONE = h._VECTOR_NONE
+        self.THREADING_OPENMP = h._THREADING_OPENMP
+        self.THREADING_NONE = h._THREADING_NONE
+        self.PROCESSOR_CPU = h._PROCESSOR_CPU
+        self.PROCESSOR_GPU = h._PROCESSOR_GPU
+        self.PROCESSOR_FPGA = h._PROCESSOR_FPGA
+        self.PROCESSOR_CELL = h._PROCESSOR_CELL
+        self.PROCESSOR_PHI = h._PROCESSOR_PHI
+        self.PROCESSOR_OTHER = h._PROCESSOR_OTHER
+        self.FRAMEWORK_CUDA = h._FRAMEWORK_CUDA
+        self.FRAMEWORK_OPENCL = h._FRAMEWORK_OPENCL
+        self.FRAMEWORK_CPU = h._FRAMEWORK_CPU
 
-cdef class BeagleResource:
+BeagleFlags = _BeagleFlags()
 
-    
-    property name:
-    
-        def __set__(self, bytes name):
-        
-            self.inst.get().name = (<char *>name)
-        
-    
-        def __get__(self):
-            if not self.inst.get().name:
-                 raise Exception("Cannot access pointer that is NULL")
-            cdef char  * _r = _cast_const_away(self.inst.get().name)
-            py_result = <char *>(_r)
-            return py_result
-    
-    property description:
-    
-        def __set__(self, bytes description):
-        
-            self.inst.get().description = (<char *>description)
-        
-    
-        def __get__(self):
-            if not self.inst.get().description:
-                 raise Exception("Cannot access pointer that is NULL")
-            cdef char  * _r = _cast_const_away(self.inst.get().description)
-            py_result = <char *>(_r)
-            return py_result
-    
-    property supportFlags:
-    
-        def __set__(self,  supportFlags):
-        
-            self.inst.get().supportFlags = (<long int>supportFlags)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().supportFlags
-            py_result = <long int>_r
-            return py_result
-    
-    property requiredFlags:
-    
-        def __set__(self,  requiredFlags):
-        
-            self.inst.get().requiredFlags = (<long int>requiredFlags)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().requiredFlags
-            py_result = <long int>_r
-            return py_result 
-
-cdef class beagle:
-
-    cdef shared_ptr[_beagle] inst
-
+cdef class BeagleInstance:
+    cdef shared_ptr[h.beagle_instance] thisptr
     def __dealloc__(self):
-         self.inst.reset()
+         self.thisptr.reset()
 
-    
-    def get_version(self):
-        cdef const_char  * _r = _cast_const_away(self.inst.get().get_version())
-        py_result = <const_char *>(_r)
-        return py_result
-    
-    def get_citation(self):
-        cdef const_char  * _r = _cast_const_away(self.inst.get().get_citation())
-        py_result = <const_char *>(_r)
-        return py_result
-    
-    def set_tip_states(self,  instance ,  tip_index , list in_states ):
-        assert isinstance(instance, (int, long)), 'arg instance wrong type'
-        assert isinstance(tip_index, (int, long)), 'arg tip_index wrong type'
-        assert isinstance(in_states, list) and all(isinstance(elemt_rec, (int, long)) for elemt_rec in in_states), 'arg in_states wrong type'
-    
-    
-        cdef libcpp_vector[int] v2 = in_states
-        self.inst.get().set_tip_states((<int>instance), (<int>tip_index), v2)
-        
-    
-    def get_partials(self,  instance ,  buffer_index ,  state_index , list out_partials ):
-        assert isinstance(instance, (int, long)), 'arg instance wrong type'
-        assert isinstance(buffer_index, (int, long)), 'arg buffer_index wrong type'
-        assert isinstance(state_index, (int, long)), 'arg state_index wrong type'
-        assert isinstance(out_partials, list) and all(isinstance(elemt_rec, float) for elemt_rec in out_partials), 'arg out_partials wrong type'
-    
-    
-    
-        cdef libcpp_vector[double] v3 = out_partials
-        self.inst.get().get_partials((<int>instance), (<int>buffer_index), (<int>state_index), v3)
-        
-    
-    def get_resource_list(self):
-        _r = self.inst.get().get_resource_list()
-        cdef list py_result = _r
-        return py_result
-    
-    def set_partials(self,  instance ,  buffer_index , list in_partials ):
-        assert isinstance(instance, (int, long)), 'arg instance wrong type'
-        assert isinstance(buffer_index, (int, long)), 'arg buffer_index wrong type'
-        assert isinstance(in_partials, list) and all(isinstance(elemt_rec, float) for elemt_rec in in_partials), 'arg in_partials wrong type'
-    
-    
-        cdef libcpp_vector[double] v2 = in_partials
-        self.inst.get().set_partials((<int>instance), (<int>buffer_index), v2)
-        
-    
-    def set_tip_partials(self,  instance ,  tip_index , list in_partials ):
-        assert isinstance(instance, (int, long)), 'arg instance wrong type'
-        assert isinstance(tip_index, (int, long)), 'arg tip_index wrong type'
-        assert isinstance(in_partials, list) and all(isinstance(elemt_rec, float) for elemt_rec in in_partials), 'arg in_partials wrong type'
-    
-    
-        cdef libcpp_vector[double] v2 = in_partials
-        self.inst.get().set_tip_partials((<int>instance), (<int>tip_index), v2)
-         
-
-cdef class BeagleInstanceDetails:
-
-    
-    property resourceNumber:
-    
-        def __set__(self,  resourceNumber):
-        
-            self.inst.get().resourceNumber = (<int>resourceNumber)
-        
-    
-        def __get__(self):
-            cdef int _r = self.inst.get().resourceNumber
-            py_result = <int>_r
-            return py_result
-    
-    property resourceName:
-    
-        def __set__(self, bytes resourceName):
-        
-            self.inst.get().resourceName = (<char *>resourceName)
-        
-    
-        def __get__(self):
-            if not self.inst.get().resourceName:
-                 raise Exception("Cannot access pointer that is NULL")
-            cdef char  * _r = _cast_const_away(self.inst.get().resourceName)
-            py_result = <char *>(_r)
-            return py_result
-    
-    property implName:
-    
-        def __set__(self, bytes implName):
-        
-            self.inst.get().implName = (<char *>implName)
-        
-    
-        def __get__(self):
-            if not self.inst.get().implName:
-                 raise Exception("Cannot access pointer that is NULL")
-            cdef char  * _r = _cast_const_away(self.inst.get().implName)
-            py_result = <char *>(_r)
-            return py_result
-    
-    property implDescription:
-    
-        def __set__(self, bytes implDescription):
-        
-            self.inst.get().implDescription = (<char *>implDescription)
-        
-    
-        def __get__(self):
-            if not self.inst.get().implDescription:
-                 raise Exception("Cannot access pointer that is NULL")
-            cdef char  * _r = _cast_const_away(self.inst.get().implDescription)
-            py_result = <char *>(_r)
-            return py_result
-    
-    property flags:
-    
-        def __set__(self,  flags):
-        
-            self.inst.get().flags = (<long int>flags)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().flags
-            py_result = <long int>_r
-            return py_result 
-
-cdef class beagle_instance:
-
-    cdef shared_ptr[_beagle_instance] inst
-
-    def __dealloc__(self):
-         self.inst.reset()
-
-    
     property instance:
-    
         def __set__(self,  instance):
-        
-            self.inst.get().instance = (<int>instance)
-        
-    
+            self.thisptr.get().instance = (<int>instance)
         def __get__(self):
-            cdef int _r = self.inst.get().instance
+            cdef int _r = self.thisptr.get().instance
             py_result = <int>_r
             return py_result
-    
-    def __init__(self,  tipCount ,  partialsBufferCount ,  compactBufferCount ,  stateCount ,  patternCount ,  eigenBufferCount ,  matrixBufferCount ,  categoryCount ,  scaleBufferCount ,  resourceCount ,  preferenceFlags ,  requirementFlags ):
+
+    def __init__(self, tipCount, partialsBufferCount, compactBufferCount, stateCount,
+                 patternCount , eigenBufferCount, matrixBufferCount, categoryCount,
+                 scaleBufferCount, resourceCount, preferenceFlags, requirementFlags):
         assert isinstance(tipCount, (int, long)), 'arg tipCount wrong type'
         assert isinstance(partialsBufferCount, (int, long)), 'arg partialsBufferCount wrong type'
         assert isinstance(compactBufferCount, (int, long)), 'arg compactBufferCount wrong type'
@@ -252,363 +114,199 @@ cdef class beagle_instance:
         assert isinstance(resourceCount, (int, long)), 'arg resourceCount wrong type'
         assert isinstance(preferenceFlags, (int, long)), 'arg preferenceFlags wrong type'
         assert isinstance(requirementFlags, (int, long)), 'arg requirementFlags wrong type'
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        self.inst = shared_ptr[_beagle_instance](new _beagle_instance((<int>tipCount), (<int>partialsBufferCount), (<int>compactBufferCount), (<int>stateCount), (<int>patternCount), (<int>eigenBufferCount), (<int>matrixBufferCount), (<int>categoryCount), (<int>scaleBufferCount), (<int>resourceCount), (<long int>preferenceFlags), (<long int>requirementFlags))) 
+        self.thisptr = shared_ptr[h.beagle_instance](new h.beagle_instance((<int>tipCount), (<int>partialsBufferCount), (<int>compactBufferCount), (<int>stateCount), (<int>patternCount), (<int>eigenBufferCount), (<int>matrixBufferCount), (<int>categoryCount), (<int>scaleBufferCount), (<int>resourceCount), (<long int>preferenceFlags), (<long int>requirementFlags)))
 
-cdef class beagle_flags:
+cdef class BeagleResource:
+    cdef BeagleResource_wrap* thisptr
 
-    cdef shared_ptr[_beagle_flags] inst
+    cdef _setup(self, BeagleResource_wrap* ptr):
+        self.thisptr = ptr
+        self.thisptr.name = ptr.name
+        self.thisptr.description = ptr.description
+        self.thisptr.supportFlags = ptr.supportFlags
+        self.thisptr.requiredFlags = ptr.requiredFlags
+        return self
 
-    def __dealloc__(self):
-         self.inst.reset()
+    def __str__(self):
+        return '{}: {}\n{}'.format(self.__class__.__name__, self.name, self.description)
 
-    
-    property BEAGLE_FLAG_PRECISION_SINGLE:
-    
-        def __set__(self,  BEAGLE_FLAG_PRECISION_SINGLE):
-        
-            self.inst.get().BEAGLE_FLAG_PRECISION_SINGLE = (<long int>BEAGLE_FLAG_PRECISION_SINGLE)
-        
-    
+    property name:
+        def __set__(self, bytes name):
+            self.thisptr.name = (<char *>name)
+
         def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PRECISION_SINGLE
-            py_result = <long int>_r
+            if not self.thisptr.name:
+                 raise Exception("Cannot access pointer that is NULL")
+            cdef char  * _r = _cast_const_away(self.thisptr.name)
+            py_result = <char *>(_r)
             return py_result
-    
-    property BEAGLE_FLAG_PRECISION_DOUBLE:
-    
-        def __set__(self,  BEAGLE_FLAG_PRECISION_DOUBLE):
-        
-            self.inst.get().BEAGLE_FLAG_PRECISION_DOUBLE = (<long int>BEAGLE_FLAG_PRECISION_DOUBLE)
-        
-    
+
+    property description:
+        def __set__(self, bytes description):
+            self.thisptr.description = (<char *>description)
+
         def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PRECISION_DOUBLE
-            py_result = <long int>_r
+            if not self.thisptr.description:
+                 raise Exception("Cannot access pointer that is NULL")
+            cdef char  * _r = _cast_const_away(self.thisptr.description)
+            py_result = <char *>(_r)
             return py_result
-    
-    property BEAGLE_FLAG_COMPUTATION_SYNCH:
-    
-        def __set__(self,  BEAGLE_FLAG_COMPUTATION_SYNCH):
-        
-            self.inst.get().BEAGLE_FLAG_COMPUTATION_SYNCH = (<long int>BEAGLE_FLAG_COMPUTATION_SYNCH)
-        
-    
+
+    property supportFlags:
+        def __set__(self, long supportFlags):
+            self.thisptr.supportFlags= (<long>supportFlags)
+
         def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_COMPUTATION_SYNCH
-            py_result = <long int>_r
+            if not self.thisptr.supportFlags:
+                 raise Exception("Cannot access pointer that is NULL")
+            _r = self.thisptr.supportFlags
+            py_result = _r
             return py_result
-    
-    property BEAGLE_FLAG_COMPUTATION_ASYNCH:
-    
-        def __set__(self,  BEAGLE_FLAG_COMPUTATION_ASYNCH):
-        
-            self.inst.get().BEAGLE_FLAG_COMPUTATION_ASYNCH = (<long int>BEAGLE_FLAG_COMPUTATION_ASYNCH)
-        
-    
+
+    property requiredFlags:
+        def __set__(self, bytes requiredFlags):
+            self.thisptr.requiredFlags = (<long>requiredFlags)
+
         def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_COMPUTATION_ASYNCH
-            py_result = <long int>_r
+            if not self.thisptr.requiredFlags:
+                 raise Exception("Cannot access pointer that is NULL")
+            _r = self.thisptr.requiredFlags
+            py_result = _r
             return py_result
-    
-    property BEAGLE_FLAG_EIGEN_REAL:
-    
-        def __set__(self,  BEAGLE_FLAG_EIGEN_REAL):
-        
-            self.inst.get().BEAGLE_FLAG_EIGEN_REAL = (<long int>BEAGLE_FLAG_EIGEN_REAL)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_EIGEN_REAL
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_EIGEN_COMPLEX:
-    
-        def __set__(self,  BEAGLE_FLAG_EIGEN_COMPLEX):
-        
-            self.inst.get().BEAGLE_FLAG_EIGEN_COMPLEX = (<long int>BEAGLE_FLAG_EIGEN_COMPLEX)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_EIGEN_COMPLEX
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_SCALING_MANUAL:
-    
-        def __set__(self,  BEAGLE_FLAG_SCALING_MANUAL):
-        
-            self.inst.get().BEAGLE_FLAG_SCALING_MANUAL = (<long int>BEAGLE_FLAG_SCALING_MANUAL)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_SCALING_MANUAL
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_SCALING_AUTO:
-    
-        def __set__(self,  BEAGLE_FLAG_SCALING_AUTO):
-        
-            self.inst.get().BEAGLE_FLAG_SCALING_AUTO = (<long int>BEAGLE_FLAG_SCALING_AUTO)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_SCALING_AUTO
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_SCALING_ALWAYS:
-    
-        def __set__(self,  BEAGLE_FLAG_SCALING_ALWAYS):
-        
-            self.inst.get().BEAGLE_FLAG_SCALING_ALWAYS = (<long int>BEAGLE_FLAG_SCALING_ALWAYS)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_SCALING_ALWAYS
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_SCALING_DYNAMIC:
-    
-        def __set__(self,  BEAGLE_FLAG_SCALING_DYNAMIC):
-        
-            self.inst.get().BEAGLE_FLAG_SCALING_DYNAMIC = (<long int>BEAGLE_FLAG_SCALING_DYNAMIC)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_SCALING_DYNAMIC
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_SCALERS_RAW:
-    
-        def __set__(self,  BEAGLE_FLAG_SCALERS_RAW):
-        
-            self.inst.get().BEAGLE_FLAG_SCALERS_RAW = (<long int>BEAGLE_FLAG_SCALERS_RAW)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_SCALERS_RAW
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_SCALERS_LOG:
-    
-        def __set__(self,  BEAGLE_FLAG_SCALERS_LOG):
-        
-            self.inst.get().BEAGLE_FLAG_SCALERS_LOG = (<long int>BEAGLE_FLAG_SCALERS_LOG)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_SCALERS_LOG
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_INVEVEC_STANDARD:
-    
-        def __set__(self,  BEAGLE_FLAG_INVEVEC_STANDARD):
-        
-            self.inst.get().BEAGLE_FLAG_INVEVEC_STANDARD = (<long int>BEAGLE_FLAG_INVEVEC_STANDARD)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_INVEVEC_STANDARD
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_INVEVEC_TRANSPOSED:
-    
-        def __set__(self,  BEAGLE_FLAG_INVEVEC_TRANSPOSED):
-        
-            self.inst.get().BEAGLE_FLAG_INVEVEC_TRANSPOSED = (<long int>BEAGLE_FLAG_INVEVEC_TRANSPOSED)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_INVEVEC_TRANSPOSED
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_VECTOR_SSE:
-    
-        def __set__(self,  BEAGLE_FLAG_VECTOR_SSE):
-        
-            self.inst.get().BEAGLE_FLAG_VECTOR_SSE = (<long int>BEAGLE_FLAG_VECTOR_SSE)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_VECTOR_SSE
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_VECTOR_AVX:
-    
-        def __set__(self,  BEAGLE_FLAG_VECTOR_AVX):
-        
-            self.inst.get().BEAGLE_FLAG_VECTOR_AVX = (<long int>BEAGLE_FLAG_VECTOR_AVX)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_VECTOR_AVX
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_VECTOR_NONE:
-    
-        def __set__(self,  BEAGLE_FLAG_VECTOR_NONE):
-        
-            self.inst.get().BEAGLE_FLAG_VECTOR_NONE = (<long int>BEAGLE_FLAG_VECTOR_NONE)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_VECTOR_NONE
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_THREADING_OPENMP:
-    
-        def __set__(self,  BEAGLE_FLAG_THREADING_OPENMP):
-        
-            self.inst.get().BEAGLE_FLAG_THREADING_OPENMP = (<long int>BEAGLE_FLAG_THREADING_OPENMP)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_THREADING_OPENMP
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_THREADING_NONE:
-    
-        def __set__(self,  BEAGLE_FLAG_THREADING_NONE):
-        
-            self.inst.get().BEAGLE_FLAG_THREADING_NONE = (<long int>BEAGLE_FLAG_THREADING_NONE)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_THREADING_NONE
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_PROCESSOR_CPU:
-    
-        def __set__(self,  BEAGLE_FLAG_PROCESSOR_CPU):
-        
-            self.inst.get().BEAGLE_FLAG_PROCESSOR_CPU = (<long int>BEAGLE_FLAG_PROCESSOR_CPU)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PROCESSOR_CPU
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_PROCESSOR_GPU:
-    
-        def __set__(self,  BEAGLE_FLAG_PROCESSOR_GPU):
-        
-            self.inst.get().BEAGLE_FLAG_PROCESSOR_GPU = (<long int>BEAGLE_FLAG_PROCESSOR_GPU)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PROCESSOR_GPU
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_PROCESSOR_FPGA:
-    
-        def __set__(self,  BEAGLE_FLAG_PROCESSOR_FPGA):
-        
-            self.inst.get().BEAGLE_FLAG_PROCESSOR_FPGA = (<long int>BEAGLE_FLAG_PROCESSOR_FPGA)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PROCESSOR_FPGA
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_PROCESSOR_CELL:
-    
-        def __set__(self,  BEAGLE_FLAG_PROCESSOR_CELL):
-        
-            self.inst.get().BEAGLE_FLAG_PROCESSOR_CELL = (<long int>BEAGLE_FLAG_PROCESSOR_CELL)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PROCESSOR_CELL
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_PROCESSOR_PHI:
-    
-        def __set__(self,  BEAGLE_FLAG_PROCESSOR_PHI):
-        
-            self.inst.get().BEAGLE_FLAG_PROCESSOR_PHI = (<long int>BEAGLE_FLAG_PROCESSOR_PHI)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PROCESSOR_PHI
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_PROCESSOR_OTHER:
-    
-        def __set__(self,  BEAGLE_FLAG_PROCESSOR_OTHER):
-        
-            self.inst.get().BEAGLE_FLAG_PROCESSOR_OTHER = (<long int>BEAGLE_FLAG_PROCESSOR_OTHER)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_PROCESSOR_OTHER
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_FRAMEWORK_CUDA:
-    
-        def __set__(self,  BEAGLE_FLAG_FRAMEWORK_CUDA):
-        
-            self.inst.get().BEAGLE_FLAG_FRAMEWORK_CUDA = (<long int>BEAGLE_FLAG_FRAMEWORK_CUDA)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_FRAMEWORK_CUDA
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_FRAMEWORK_OPENCL:
-    
-        def __set__(self,  BEAGLE_FLAG_FRAMEWORK_OPENCL):
-        
-            self.inst.get().BEAGLE_FLAG_FRAMEWORK_OPENCL = (<long int>BEAGLE_FLAG_FRAMEWORK_OPENCL)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_FRAMEWORK_OPENCL
-            py_result = <long int>_r
-            return py_result
-    
-    property BEAGLE_FLAG_FRAMEWORK_CPU:
-    
-        def __set__(self,  BEAGLE_FLAG_FRAMEWORK_CPU):
-        
-            self.inst.get().BEAGLE_FLAG_FRAMEWORK_CPU = (<long int>BEAGLE_FLAG_FRAMEWORK_CPU)
-        
-    
-        def __get__(self):
-            cdef long int _r = self.inst.get().BEAGLE_FLAG_FRAMEWORK_CPU
-            py_result = <long int>_r
-            return py_result
-    
-    def __init__(self):
-        self.inst = shared_ptr[_beagle_flags](new _beagle_flags()) 
+
+cdef _convert_resource_list():
+    cdef BeagleResourceList_wrap* rl = h.beagleGetResourceList()
+    l = []
+    for i in range(rl.length):
+        br = BeagleResource()._setup(address(rl.list[i]))
+        l.append(br)
+    return l
+
+# PYX definitions of beagle functions
+def get_version():
+    cdef const_char *retval = _cast_const_away(h.beagleGetVersion())
+    py_result = <const_char *>(retval)
+    return py_result
+
+def get_citation():
+    cdef const_char *retval = _cast_const_away(h.beagleGetCitation())
+    py_result = <const_char *>(retval)
+    return py_result
+
+def set_tip_states(int instance, int tip_index, np.ndarray[INT,ndim=1] in_states):
+    """
+    Set the compact state representation for tip node
+    
+    This function copies a compact state representation into an instance buffer.
+    Compact state representation is an array of states: 0 to stateCount - 1 (missing = stateCount).
+    The inStates array should be patternCount in length (replication across categoryCount is not
+    required).
+    
+    @param instance  Instance number (input)
+    @param tipIndex  Index of destination compactBuffer (input)
+    @param inStates  numpy array (dtype=intc) to compact states (input)
+    
+    @return error code
+    """
+    retval = h.beagleSetTipStates(instance, tip_index, <int*>&in_states[0])
+    return retval
+
+def set_tip_partials(int instance, int tip_index, np.ndarray[DOUBLE,ndim=1] in_partials):
+    retval = h.beagleSetTipPartials(instance, tip_index, <double*>in_partials.data)
+    return retval
+
+def set_partials(int instance, int buffer_index, np.ndarray[DOUBLE,ndim=1] in_partials):
+    retval = h.beagleSetPartials(instance, buffer_index, <double*>in_partials.data)
+    return retval
+
+def get_partials(int instance, int buffer_index, int state_index, np.ndarray[DOUBLE, ndim=1] out_partials):
+    retval = h.beagleGetPartials(instance, buffer_index, state_index, <double*>&out_partials[0])
+    return retval
+
+def set_eigen_decomposition(int instance, int eigenIndex, np.ndarray[DOUBLE, ndim=1] inEigenVectors, np.ndarray[DOUBLE, ndim=1] inInverseEigenVectors, np.ndarray[DOUBLE, ndim=1] inEigenValues):
+    retval = h.beagleSetEigenDecomposition(instance, eigenIndex, <double*>inEigenVectors.data, <double*> inInverseEigenVectors.data, <double*> inEigenValues.data)
+    return retval
+
+def set_state_frequencies(int instance, int stateFrequenciesIndex, np.ndarray[DOUBLE, ndim=1] inStateFrequencies):
+    retval = h.beagleSetStateFrequencies(instance, stateFrequenciesIndex, <double*>inStateFrequencies.data)
+    return retval
+
+def set_category_weights(int instance, int categoryWeightsIndex, np.ndarray[DOUBLE, ndim=1] inCategoryWeights):
+    retval = h.beagleSetCategoryWeights(instance, categoryWeightsIndex, <double*>inCategoryWeights.data)
+    return retval
+
+def set_category_rates(int instance, np.ndarray[DOUBLE, ndim=1] inCategoryRates):
+    retval = h.beagleSetCategoryRates(instance, <double*>inCategoryRates.data)
+    return retval
+
+def set_pattern_weights(int instance, np.ndarray[DOUBLE, ndim=1] inPatternWeights):
+    retval = h.beagleSetPatternWeights(instance, <double*>inPatternWeights.data)
+    return retval
+
+def convolve_transition_matrices(int instance, np.ndarray[INT, ndim=1] firstIndices, np.ndarray[INT, ndim=1] secondIndices, np.ndarray[INT, ndim=1] resultIndices, int matrixCount):
+    retval = h.beagleConvolveTransitionMatrices(instance, <int*>&firstIndices[0], <int*>&secondIndices[0], <int*>&resultIndices[0], matrixCount)
+    return retval
+
+def update_transition_matrices(int instance, int eigenIndex, np.ndarray[INT, ndim=1] probabilityIndices, np.ndarray[INT, ndim=1] firstDerivativeIndices, np.ndarray[INT, ndim=1] secondDerivativeIndices, np.ndarray[DOUBLE, ndim=1] edgeLengths, int count):
+    retval = h.beagleUpdateTransitionMatrices(instance, eigenIndex, <int*>&probabilityIndices[0], <int*>&firstDerivativeIndices[0], <int*>&secondDerivativeIndices[0], <double*>&edgeLengths[0], count)
+    return retval
+
+def set_transition_matrix(int instance, int matrixIndex, np.ndarray[DOUBLE, ndim=1] inMatrix, double paddedValue):
+    retval = h.beagleSetTransitionMatrix(instance, matrixIndex, <double*>&inMatrix[0], paddedValue)
+    return retval
+
+def get_transition_matrix(int instance, int matrixIndex, np.ndarray[DOUBLE, ndim=1] outMatrix):
+    retval = h.beagleGetTransitionMatrix(instance, matrixIndex, <double*>&outMatrix[0])
+    return retval
+
+def set_transition_matrices(int instance, np.ndarray[INT, ndim=1] matrixIndices, np.ndarray[DOUBLE, ndim=1] inMatrices, np.ndarray[DOUBLE, ndim=1] paddedValues, int count):
+    retval = h.beagleSetTransitionMatrices(instance, <int*>matrixIndices.data, <double*>inMatrices.data, <double*>paddedValues.data, count)
+    return retval
+
+def update_partials(const int instance, np.ndarray[INT, ndim=1, mode='c'] operations, int operationCount, int cumulativeScaleIndex):
+    retval = h.beagle_update_partials(instance, <int*>operations.data, operationCount, cumulativeScaleIndex)
+    return retval
+
+def wait_for_partials(const int instance, np.ndarray[INT, ndim=1] destinationPartials, int destinationPartialsCount):
+    retval = h.beagleWaitForPartials(instance, <int*>&destinationPartials[0], destinationPartialsCount)
+    return retval
+
+def accumulate_scale_factors(int instance, np.ndarray[INT, ndim=1] scaleIndices, int count, int cumulativeScaleIndex):
+    retval = h.beagleAccumulateScaleFactors(instance, <int*>&scaleIndices[0], count, cumulativeScaleIndex)
+    return retval
+
+def remove_scale_factors(int instance, np.ndarray[INT, ndim=1] scaleIndices, int count, int cumulativeScaleIndex):
+    retval = h.beagleRemoveScaleFactors(instance, <int*>&scaleIndices[0], count, cumulativeScaleIndex)
+    return retval
+
+def reset_scale_factors(int instance, int cumulativeScaleIndex):
+    retval = h.beagleResetScaleFactors(instance, cumulativeScaleIndex)
+    return retval
+
+def copy_scale_factors(int instance, int destScalingIndex, int srcScalingIndex):
+    retval = h.beagleCopyScaleFactors(instance, destScalingIndex, srcScalingIndex)
+    return retval
+
+def get_scale_factors(int instance, int srcScalingIndex, np.ndarray[DOUBLE, ndim=1] outScaleFactors):
+    retval = h.beagleGetScaleFactors(instance, srcScalingIndex, <double*>&outScaleFactors[0])
+    return retval
+
+def calculate_root_log_likelihoods(int instance, np.ndarray[INT, ndim=1] bufferIndices, np.ndarray[INT, ndim=1] categoryWeightsIndices, np.ndarray[INT, ndim=1] stateFrequenciesIndices, np.ndarray[INT, ndim=1] cumulativeScaleIndices, int count, np.ndarray[DOUBLE, ndim=1] outSumLogLikelihood):
+    retval = h.beagleCalculateRootLogLikelihoods(instance, <int*>&bufferIndices[0], <int*>&categoryWeightsIndices[0], <int*>&stateFrequenciesIndices[0], <int*>&cumulativeScaleIndices[0], count, <double*>&outSumLogLikelihood[0])
+    return retval
+
+def calculate_edge_log_likelihoods(int instance, np.ndarray[INT, ndim=1] parentBufferIndices, np.ndarray[INT, ndim=1] childBufferIndices, np.ndarray[INT, ndim=1] probabilityIndices, np.ndarray[INT, ndim=1] firstDerivativeIndices, np.ndarray[INT, ndim=1] secondDerivativeIndices, np.ndarray[INT, ndim=1] categoryWeightsIndices, np.ndarray[INT, ndim=1] stateFrequenciesIndices, np.ndarray[INT, ndim=1] cumulativeScaleIndices, int count, np.ndarray[DOUBLE, ndim=1] outSumLogLikelihood, np.ndarray[DOUBLE, ndim=1] outSumFirstDerivative, np.ndarray[DOUBLE, ndim=1] outSumSecondDerivative):
+    retval = h.beagleCalculateEdgeLogLikelihoods(instance, <int*>&parentBufferIndices[0], <int*>&childBufferIndices[0], <int*>&probabilityIndices[0], <int*>&firstDerivativeIndices[0], <int*>&secondDerivativeIndices[0], <int*>&categoryWeightsIndices[0], <int*>&stateFrequenciesIndices[0], <int*>&cumulativeScaleIndices[0], count, <double*>&outSumLogLikelihood[0], <double*>&outSumFirstDerivative[0], <double*>&outSumSecondDerivative[0])
+    return retval
+
+def get_site_log_likelihoods(int instance, np.ndarray[DOUBLE, ndim=1] outLogLikelihoods):
+    retval = h.beagleGetSiteLogLikelihoods(instance, <double*>&outLogLikelihoods[0])
+    return retval
+
+def get_site_derivatives(int instance, np.ndarray[DOUBLE, ndim=1] outFirstDerivatives, np.ndarray[DOUBLE, ndim=1] outSecondDerivatives):
+    retval = h.beagleGetSiteDerivatives(instance, <double*>&outFirstDerivatives[0], <double*>&outSecondDerivatives[0])
+    return retval
+
+def get_resource_list():
+    l = _convert_resource_list()
+    return l

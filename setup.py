@@ -43,7 +43,7 @@ pkgconfig_flags['include_dirs'].append(data_dir)
 pkgconfig_flags['include_dirs'].extend([numpy.get_include()])
 
 ext = Extension("pybeagle",
-                sources = ['pybeagle_hand.pyx',
+                sources = ['pybeagle.pyx',
                            'src/beagle_wrapper.cpp'],
                 language="c++",
                 extra_compile_args=compile_args,
