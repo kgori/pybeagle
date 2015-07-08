@@ -34,7 +34,7 @@ partials_e = prep([converter.get(x, np.array([1.0, 1.0, 1.0, 1.0])) for x in e],
 
 bi = pybeagle.BeagleInstance(5,8,0,4,200,1,21,4,0,0,0,1)
 i = bi.instance
-BEAGLE_OP_NONE = -1
+BEAGLE_OP_NONE = pybeagle.OpCodes.OP_NONE
 
 
 assert pybeagle.set_tip_partials(i, 0, partials_a) == 0, 'Error'

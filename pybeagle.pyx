@@ -84,7 +84,45 @@ cdef class _BeagleFlags:
         self.FRAMEWORK_OPENCL = h._FRAMEWORK_OPENCL
         self.FRAMEWORK_CPU = h._FRAMEWORK_CPU
 
-BeagleFlags = _BeagleFlags()
+Flags = _BeagleFlags()
+
+@cython.internal
+cdef class _BeagleReturnCodes:
+    cdef:
+        readonly int SUCCESS
+        readonly int GENERAL
+        readonly int OUT_OF_MEMORY
+        readonly int UNIDENTIFIED_EXCEPTION
+        readonly int UNINITIALIZED_INSTANCE
+        readonly int OUT_OF_RANGE
+        readonly int NO_RESOURCE
+        readonly int NO_IMPLEMENTATION
+        readonly int FLOATING_POINT
+
+    def __cinit__(self):
+        self.SUCCESS = h._SUCCESS
+        self.GENERAL = h._GENERAL
+        self.OUT_OF_MEMORY = h._OUT_OF_MEMORY
+        self.UNIDENTIFIED_EXCEPTION = h._UNIDENTIFIED_EXCEPTION
+        self.UNINITIALIZED_INSTANCE = h._UNINITIALIZED_INSTANCE
+        self.OUT_OF_RANGE = h._OUT_OF_RANGE
+        self.NO_RESOURCE = h._NO_RESOURCE
+        self.NO_IMPLEMENTATION = h._NO_IMPLEMENTATION
+        self.FLOATING_POINT = h._FLOATING_POINT
+
+ReturnCodes = _BeagleReturnCodes()
+
+@cython.internal
+cdef class _BeagleOpCodes:
+    cdef:
+        readonly int OP_COUNT
+        readonly int OP_NONE
+
+    def __cinit__(self):
+        self.OP_COUNT = h._OP_COUNT
+        self.OP_NONE = h._OP_NONE
+
+OpCodes = _BeagleOpCodes()
 
 cdef class BeagleInstance:
     cdef shared_ptr[h.beagle_instance] thisptr

@@ -65,6 +65,21 @@ cdef extern from "libhmsbeagle/beagle.h":
         _FRAMEWORK_OPENCL "BEAGLE_FLAG_FRAMEWORK_OPENCL"
         _FRAMEWORK_CPU "BEAGLE_FLAG_FRAMEWORK_CPU"
 
+    ctypedef enum BeagleReturnCodes_wrap "BeagleReturnCodes":
+        _SUCCESS "BEAGLE_SUCCESS"                      #=  0,  /**< Success */
+        _GENERAL "BEAGLE_ERROR_GENERAL"                #= -1,  /**< Unspecified error */
+        _OUT_OF_MEMORY "BEAGLE_ERROR_OUT_OF_MEMORY"          #= -2,  /**< Not enough memory could be allocated */
+        _UNIDENTIFIED_EXCEPTION "BEAGLE_ERROR_UNIDENTIFIED_EXCEPTION" #= -3,  /**< Unspecified exception */
+        _UNINITIALIZED_INSTANCE "BEAGLE_ERROR_UNINITIALIZED_INSTANCE" #= -4,  /**< The instance index is out of range, or the instance has not been created */
+        _OUT_OF_RANGE "BEAGLE_ERROR_OUT_OF_RANGE"           #= -5,  /**< One of the indices specified exceeded the range of the" array" */
+        _NO_RESOURCE "BEAGLE_ERROR_NO_RESOURCE"            #= -6,  /**< No resource matches requirements */
+        _NO_IMPLEMENTATION "BEAGLE_ERROR_NO_IMPLEMENTATION"      #= -7,  /**< No implementation matches requirements */
+        _FLOATING_POINT "BEAGLE_ERROR_FLOATING_POINT"         #= -8 
+
+    ctypedef enum BeagleOpCodes "BeagleOpCodes":
+        _OP_COUNT "BEAGLE_OP_COUNT"
+        _OP_NONE "BEAGLE_OP_NONE"
+
     ctypedef struct BeagleResource:
         char* name
         char* description
