@@ -240,11 +240,12 @@ def set_tip_states(int instance, int tip_index, np.ndarray[INT,ndim=1] in_states
     The inStates array should be patternCount in length (replication across categoryCount is not
     required).
     
-    @param instance  Instance number (input)
-    @param tipIndex  Index of destination compactBuffer (input)
-    @param inStates  numpy array (dtype=intc) to compact states (input)
+    :param instance:  Instance number (input)
+    :param tipIndex:  Index of destination compactBuffer (input)
+    :param inStates:  Compact states (input)
+    :type inStates:   numpy ndarray, dtype=np.intc
     
-    @return error code
+    :returns: int -- error code
     """
     retval = h.beagleSetTipStates(instance, tip_index, <int*>&in_states[0])
     return retval
@@ -258,7 +259,7 @@ def set_partials(int instance, int buffer_index, np.ndarray[DOUBLE,ndim=1] in_pa
     return retval
 
 def get_partials(int instance, int buffer_index, int state_index, np.ndarray[DOUBLE, ndim=1] out_partials):
-    retval = h.beagleGetPartials(instance, buffer_index, state_index, <double*>&out_partials[0])
+    retval = h.beagleGetPartials(instance, buffer_index, state_index, <double*>out_partials.data)
     return retval
 
 def set_eigen_decomposition(int instance, int eigenIndex, np.ndarray[DOUBLE, ndim=1] inEigenVectors, np.ndarray[DOUBLE, ndim=1] inInverseEigenVectors, np.ndarray[DOUBLE, ndim=1] inEigenValues):
@@ -282,19 +283,52 @@ def set_pattern_weights(int instance, np.ndarray[DOUBLE, ndim=1] inPatternWeight
     return retval
 
 def convolve_transition_matrices(int instance, np.ndarray[INT, ndim=1] firstIndices, np.ndarray[INT, ndim=1] secondIndices, np.ndarray[INT, ndim=1] resultIndices, int matrixCount):
-    retval = h.beagleConvolveTransitionMatrices(instance, <int*>&firstIndices[0], <int*>&secondIndices[0], <int*>&resultIndices[0], matrixCount)
+    retval = h.beagleConvolveTransitionMatrices(instance, <int*>firstIndices.data, <int*>secondIndices.data, <int*>resultIndices.data, matrixCount)
     return retval
 
 def update_transition_matrices(int instance, int eigenIndex, np.ndarray[INT, ndim=1] probabilityIndices, np.ndarray[INT, ndim=1] firstDerivativeIndices, np.ndarray[INT, ndim=1] secondDerivativeIndices, np.ndarray[DOUBLE, ndim=1] edgeLengths, int count):
-    retval = h.beagleUpdateTransitionMatrices(instance, eigenIndex, <int*>&probabilityIndices[0], <int*>&firstDerivativeIndices[0], <int*>&secondDerivativeIndices[0], <double*>&edgeLengths[0], count)
+    """
+    Calculate a list of transition probability matrices
+
+    This function calculates a list of transition probabilities matrices and their first and
+    second derivatives (if requested).
+    
+    :param instance:                  Instance number (input)
+    :param eigenIndex:                Index of eigen-decomposition buffer (input)
+    :param probabilityIndices:        List of indices of transition probability matrices to update (input)
+    :type probabilityIndices:         numpy ndarray, dtype=np.intc
+    :param firstDerivativeIndices:    List of indices of first derivative matrices to update (input, NULL implies no calculation)
+    :type firstDerivativeIndices:     numpy ndarray, dtype=np.intc
+    :param secondDerivativeIndices:   List of indices of second derivative matrices to update (input, NULL implies no calculation)
+    :type secondDerivativeIndices:    numpy ndarray, dtype=np.intc
+    :param edgeLengths:               List of edge lengths with which to perform calculations (input)
+    :type edgeLengths:                numpy ndarray, dtype=double
+    :param count:                     Length of lists
+    :returns: int -- error code"""
+    retval = h.beagleUpdateTransitionMatrices(instance, eigenIndex, <int*>probabilityIndices.data, <int*>firstDerivativeIndices.data, <int*>secondDerivativeIndices.data, <double*>edgeLengths.data, count)
     return retval
 
 def set_transition_matrix(int instance, int matrixIndex, np.ndarray[DOUBLE, ndim=1] inMatrix, double paddedValue):
-    retval = h.beagleSetTransitionMatrix(instance, matrixIndex, <double*>&inMatrix[0], paddedValue)
+    """
+    Set a finite-time transition probability matrix
+
+    This function copies a finite-time transition probability matrix into a matrix buffer. This function
+    is used when the application wishes to explicitly set the transition probability matrix rather than
+    using the beagleSetEigenDecomposition and beagleUpdateTransitionMatrices functions. The inMatrix array should be
+    of size stateCount * stateCount * categoryCount and will contain one matrix for each rate category.
+   
+    :param instance:      Instance number (input)
+    :param matrixIndex:   Index of matrix buffer (input)
+    :param inMatrix:      Source transition probability matrix (input)
+    :type inMatrix:       numpy ndarray, dtype=np.double
+    :param paddedValue:   Value to be used for padding for ambiguous states (e.g. 1 for probability matrices, 0 for derivative matrices) (input)
+    :returns: int -- error code
+    """
+    retval = h.beagleSetTransitionMatrix(instance, matrixIndex, <double*>inMatrix.data, paddedValue)
     return retval
 
 def get_transition_matrix(int instance, int matrixIndex, np.ndarray[DOUBLE, ndim=1] outMatrix):
-    retval = h.beagleGetTransitionMatrix(instance, matrixIndex, <double*>&outMatrix[0])
+    retval = h.beagleGetTransitionMatrix(instance, matrixIndex, <double*>outMatrix.data)
     return retval
 
 def set_transition_matrices(int instance, np.ndarray[INT, ndim=1] matrixIndices, np.ndarray[DOUBLE, ndim=1] inMatrices, np.ndarray[DOUBLE, ndim=1] paddedValues, int count):
@@ -306,15 +340,15 @@ def update_partials(const int instance, np.ndarray[INT, ndim=1, mode='c'] operat
     return retval
 
 def wait_for_partials(const int instance, np.ndarray[INT, ndim=1] destinationPartials, int destinationPartialsCount):
-    retval = h.beagleWaitForPartials(instance, <int*>&destinationPartials[0], destinationPartialsCount)
+    retval = h.beagleWaitForPartials(instance, <int*>destinationPartials.data, destinationPartialsCount)
     return retval
 
 def accumulate_scale_factors(int instance, np.ndarray[INT, ndim=1] scaleIndices, int count, int cumulativeScaleIndex):
-    retval = h.beagleAccumulateScaleFactors(instance, <int*>&scaleIndices[0], count, cumulativeScaleIndex)
+    retval = h.beagleAccumulateScaleFactors(instance, <int*>scaleIndices.data, count, cumulativeScaleIndex)
     return retval
 
 def remove_scale_factors(int instance, np.ndarray[INT, ndim=1] scaleIndices, int count, int cumulativeScaleIndex):
-    retval = h.beagleRemoveScaleFactors(instance, <int*>&scaleIndices[0], count, cumulativeScaleIndex)
+    retval = h.beagleRemoveScaleFactors(instance, <int*>scaleIndices.data, count, cumulativeScaleIndex)
     return retval
 
 def reset_scale_factors(int instance, int cumulativeScaleIndex):
@@ -326,23 +360,23 @@ def copy_scale_factors(int instance, int destScalingIndex, int srcScalingIndex):
     return retval
 
 def get_scale_factors(int instance, int srcScalingIndex, np.ndarray[DOUBLE, ndim=1] outScaleFactors):
-    retval = h.beagleGetScaleFactors(instance, srcScalingIndex, <double*>&outScaleFactors[0])
+    retval = h.beagleGetScaleFactors(instance, srcScalingIndex, <double*>outScaleFactors.data)
     return retval
 
 def calculate_root_log_likelihoods(int instance, np.ndarray[INT, ndim=1] bufferIndices, np.ndarray[INT, ndim=1] categoryWeightsIndices, np.ndarray[INT, ndim=1] stateFrequenciesIndices, np.ndarray[INT, ndim=1] cumulativeScaleIndices, int count, np.ndarray[DOUBLE, ndim=1] outSumLogLikelihood):
-    retval = h.beagleCalculateRootLogLikelihoods(instance, <int*>&bufferIndices[0], <int*>&categoryWeightsIndices[0], <int*>&stateFrequenciesIndices[0], <int*>&cumulativeScaleIndices[0], count, <double*>&outSumLogLikelihood[0])
+    retval = h.beagleCalculateRootLogLikelihoods(instance, <int*>bufferIndices.data, <int*>categoryWeightsIndices.data, <int*>stateFrequenciesIndices.data, <int*>cumulativeScaleIndices.data, count, <double*>outSumLogLikelihood.data)
     return retval
 
 def calculate_edge_log_likelihoods(int instance, np.ndarray[INT, ndim=1] parentBufferIndices, np.ndarray[INT, ndim=1] childBufferIndices, np.ndarray[INT, ndim=1] probabilityIndices, np.ndarray[INT, ndim=1] firstDerivativeIndices, np.ndarray[INT, ndim=1] secondDerivativeIndices, np.ndarray[INT, ndim=1] categoryWeightsIndices, np.ndarray[INT, ndim=1] stateFrequenciesIndices, np.ndarray[INT, ndim=1] cumulativeScaleIndices, int count, np.ndarray[DOUBLE, ndim=1] outSumLogLikelihood, np.ndarray[DOUBLE, ndim=1] outSumFirstDerivative, np.ndarray[DOUBLE, ndim=1] outSumSecondDerivative):
-    retval = h.beagleCalculateEdgeLogLikelihoods(instance, <int*>&parentBufferIndices[0], <int*>&childBufferIndices[0], <int*>&probabilityIndices[0], <int*>&firstDerivativeIndices[0], <int*>&secondDerivativeIndices[0], <int*>&categoryWeightsIndices[0], <int*>&stateFrequenciesIndices[0], <int*>&cumulativeScaleIndices[0], count, <double*>&outSumLogLikelihood[0], <double*>&outSumFirstDerivative[0], <double*>&outSumSecondDerivative[0])
+    retval = h.beagleCalculateEdgeLogLikelihoods(instance, <int*>parentBufferIndices.data, <int*>childBufferIndices.data, <int*>probabilityIndices.data, <int*>firstDerivativeIndices.data, <int*>secondDerivativeIndices.data, <int*>categoryWeightsIndices.data, <int*>stateFrequenciesIndices.data, <int*>cumulativeScaleIndices.data, count, <double*>outSumLogLikelihood.data, <double*>outSumFirstDerivative.data, <double*>outSumSecondDerivative.data)
     return retval
 
 def get_site_log_likelihoods(int instance, np.ndarray[DOUBLE, ndim=1] outLogLikelihoods):
-    retval = h.beagleGetSiteLogLikelihoods(instance, <double*>&outLogLikelihoods[0])
+    retval = h.beagleGetSiteLogLikelihoods(instance, <double*>outLogLikelihoods.data)
     return retval
 
 def get_site_derivatives(int instance, np.ndarray[DOUBLE, ndim=1] outFirstDerivatives, np.ndarray[DOUBLE, ndim=1] outSecondDerivatives):
-    retval = h.beagleGetSiteDerivatives(instance, <double*>&outFirstDerivatives[0], <double*>&outSecondDerivatives[0])
+    retval = h.beagleGetSiteDerivatives(instance, <double*>outFirstDerivatives.data, <double*>outSecondDerivatives.data)
     return retval
 
 def get_resource_list():
