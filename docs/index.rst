@@ -20,10 +20,7 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
-Docstrings
-==========
-
-.. autofunction:: pybeagle.set_tip_states
-.. autofunction:: pybeagle.update_transition_matrices
-.. autofunction:: pybeagle.set_transition_matrix
+.. automodule:: pybeagle
+    :members:
+..    :undoc-members:
+..    :show-inheritance:
