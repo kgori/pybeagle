@@ -24,3 +24,8 @@ Indices and tables
     :members:
 ..    :undoc-members:
 ..    :show-inheritance:
+..    :private-members:
+..    :special-members:
+
+.. class:: pybeagle.ReturnCodes
+.. attribute:: pybeagle.ReturnCodes.SUCCESS

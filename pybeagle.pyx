@@ -22,6 +22,7 @@ ctypedef int INT
 cdef extern from "autowrap_tools.hpp":
     char * _cast_const_away(char *)
 
+# Wrap BeagleFlags enum
 @cython.internal
 cdef class _BeagleFlags:
     cdef:
@@ -86,8 +87,17 @@ cdef class _BeagleFlags:
 
 Flags = _BeagleFlags()
 
+# Wrap BeagleReturnCodes enum
 @cython.internal
-cdef class _BeagleReturnCodes:
+cdef class BeagleReturnCodes:
+    """
+    ReturnCodes
+
+    Enum of return codes
+    SUCCESS = Completed successfully
+    GENERAL = General error
+    OUT_OF_MEMORY = The process ran out of memory
+    """
     cdef:
         readonly int SUCCESS
         readonly int GENERAL
@@ -110,8 +120,9 @@ cdef class _BeagleReturnCodes:
         self.NO_IMPLEMENTATION = h._NO_IMPLEMENTATION
         self.FLOATING_POINT = h._FLOATING_POINT
 
-ReturnCodes = _BeagleReturnCodes()
+ReturnCodes = BeagleReturnCodes()
 
+# Wrap BeagleOpCodes enum
 @cython.internal
 cdef class _BeagleOpCodes:
     cdef:
@@ -124,6 +135,7 @@ cdef class _BeagleOpCodes:
 
 OpCodes = _BeagleOpCodes()
 
+# Wrap BeagleInstance C++ class
 cdef class BeagleInstance:
     cdef shared_ptr[h.beagle_instance] thisptr
     def __dealloc__(self):
@@ -154,6 +166,7 @@ cdef class BeagleInstance:
         assert isinstance(requirementFlags, (int, long)), 'arg requirementFlags wrong type'
         self.thisptr = shared_ptr[h.beagle_instance](new h.beagle_instance((<int>tipCount), (<int>partialsBufferCount), (<int>compactBufferCount), (<int>stateCount), (<int>patternCount), (<int>eigenBufferCount), (<int>matrixBufferCount), (<int>categoryCount), (<int>scaleBufferCount), (<int>resourceCount), (<long int>preferenceFlags), (<long int>requirementFlags)))
 
+# Wrap BeagleResource C struct
 cdef class BeagleResource:
     cdef BeagleResource_wrap* thisptr
 
@@ -288,28 +301,45 @@ def convolve_transition_matrices(int instance, np.ndarray[INT, ndim=1] firstIndi
 
 def update_transition_matrices(int instance, int eigenIndex, np.ndarray[INT, ndim=1] probabilityIndices, np.ndarray[INT, ndim=1] firstDerivativeIndices, np.ndarray[INT, ndim=1] secondDerivativeIndices, np.ndarray[DOUBLE, ndim=1] edgeLengths, int count):
     """
+    update_transition_matrices(instance, eigenIndex, probabilityIndices, firstDerivativeIndices, secondDerivativeIndices, edgeLengths, count)
+
     Calculate a list of transition probability matrices
 
     This function calculates a list of transition probabilities matrices and their first and
     second derivatives (if requested).
     
-    :param instance:                  Instance number (input)
-    :param eigenIndex:                Index of eigen-decomposition buffer (input)
-    :param probabilityIndices:        List of indices of transition probability matrices to update (input)
-    :type probabilityIndices:         numpy ndarray, dtype=np.intc
-    :param firstDerivativeIndices:    List of indices of first derivative matrices to update (input, NULL implies no calculation)
-    :type firstDerivativeIndices:     numpy ndarray, dtype=np.intc
-    :param secondDerivativeIndices:   List of indices of second derivative matrices to update (input, NULL implies no calculation)
-    :type secondDerivativeIndices:    numpy ndarray, dtype=np.intc
-    :param edgeLengths:               List of edge lengths with which to perform calculations (input)
-    :type edgeLengths:                numpy ndarray, dtype=double
-    :param count:                     Length of lists
-    :returns: int -- error code"""
+    Parameters
+    ----------
+    instance:                  int
+                               Instance number
+    eigenIndex:                int
+                               Index of eigen-decomposition buffer (input)
+    probabilityIndices:        np.ndarray[np.intc, ndim=1]
+                               List of indices of transition probability matrices to update (input)
+    firstDerivativeIndices:    np.ndarray[np.intc, ndim=1]
+                               List of indices of first derivative matrices to update (input, NULL implies no calculation)
+    secondDerivativeIndices:   np.ndarray[np.intc, ndim=1]
+                               List of indices of second derivative matrices to update (input, NULL implies no calculation)
+    edgeLengths:               np.ndarray[np.double, ndim=1]
+                               List of edge lengths with which to perform calculations (input)
+    count:                     int
+                               Length of lists
+
+    Returns
+    -------
+    return_code: int
+    
+    See Also
+    --------
+    ReturnCodes : Enum of possible return codes
+    """
     retval = h.beagleUpdateTransitionMatrices(instance, eigenIndex, <int*>probabilityIndices.data, <int*>firstDerivativeIndices.data, <int*>secondDerivativeIndices.data, <double*>edgeLengths.data, count)
     return retval
 
 def set_transition_matrix(int instance, int matrixIndex, np.ndarray[DOUBLE, ndim=1] inMatrix, double paddedValue):
     """
+    set_transition_matrix(instance, matrixIndex, inMatrix, paddedValue)
+    
     Set a finite-time transition probability matrix
 
     This function copies a finite-time transition probability matrix into a matrix buffer. This function
@@ -317,12 +347,27 @@ def set_transition_matrix(int instance, int matrixIndex, np.ndarray[DOUBLE, ndim
     using the beagleSetEigenDecomposition and beagleUpdateTransitionMatrices functions. The inMatrix array should be
     of size stateCount * stateCount * categoryCount and will contain one matrix for each rate category.
    
-    :param instance:      Instance number (input)
-    :param matrixIndex:   Index of matrix buffer (input)
-    :param inMatrix:      Source transition probability matrix (input)
-    :type inMatrix:       numpy ndarray, dtype=np.double
-    :param paddedValue:   Value to be used for padding for ambiguous states (e.g. 1 for probability matrices, 0 for derivative matrices) (input)
-    :returns: int -- error code
+
+    Parameters
+    ----------
+    instance:     int
+                  Instance number
+    matrixIndex:  int
+                  Index of matrix buffer
+    inMatrix:     np.ndarray[np.double, ndim=1]
+                  Source transition probability matrix
+    paddedValue:  float
+                  Value to be used for padding for ambiguous states (e.g. 1 for probability matrices, 0 for derivative matrices)
+    
+
+    Returns
+    -------
+    return_code : int
+    
+    See Also
+    --------
+    ReturnCodes : Enum of possible return codes
+    
     """
     retval = h.beagleSetTransitionMatrix(instance, matrixIndex, <double*>inMatrix.data, paddedValue)
     return retval

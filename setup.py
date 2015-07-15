@@ -59,5 +59,6 @@ setup(cmdclass={'build_ext':my_build_ext},
       version="0.0.1",
       ext_modules = [ext],
       install_requires = ['autowrap',
-                          'cython'],
+                          'cython',
+                          'numpy'],
      )
