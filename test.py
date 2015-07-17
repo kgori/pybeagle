@@ -1,6 +1,18 @@
 import pybeagle
 import numpy as np
 import logging
+def set_logger():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # create console handler with a higher log level
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(formatter)
+    # add the handlers to the logger
+    logger.addHandler(console)
+    return logger
+logger = set_logger()
 
 DOUBLE = np.double
 INT = np.intc
@@ -8,9 +20,9 @@ INT = np.intc
 print pybeagle.get_citation()
 
 
-resources = pybeagle.get_resource_list()
-for r in resources:
-    print r
+# resources = pybeagle.get_resource_list()
+# for r in resources:
+#     print r
 
 
 def prep(l, astype):
@@ -36,8 +48,9 @@ partials_c = prep([converter.get(x, np.array([1.0, 1.0, 1.0, 1.0])) for x in c],
 partials_d = prep([converter.get(x, np.array([1.0, 1.0, 1.0, 1.0])) for x in d], astype=DOUBLE)
 partials_e = prep([converter.get(x, np.array([1.0, 1.0, 1.0, 1.0])) for x in e], astype=DOUBLE)
 
-bi = pybeagle.BeagleInstance(5,8,0,4,200,1,21,4,0,1,0,0)
-i = bi.instance
+i = pybeagle.BeagleInstanceDetails()
+pybeagle.create_instance(5,8,0,4,200,1,21,4,0,1,0,0,i)
+
 BEAGLE_OP_NONE = pybeagle.OpCodes.OP_NONE
 
 
@@ -74,8 +87,8 @@ assert pybeagle.set_eigen_decomposition(i, 0, evec, ivec, evals) == 0, 'Error'
 
 
 edge_index = prep([0, 1, 2, 3, 4, 5, 6], astype=INT)
-edge_index_d1 = prep(edge_index + len(edge_index), astype=INT)
-edge_index_d2 = prep(edge_index + 2*len(edge_index), astype=INT)
+edge_index_d1 = prep(edge_index + 7, astype=INT)
+edge_index_d2 = prep(edge_index + 14, astype=INT)
 edge_length = prep([0.0809704656376, 0.256065681235, 0.275250715264, 0.766145237663, 0.580351497411, 0.34826964074, 0.69649788029], astype=DOUBLE)
 
 assert pybeagle.update_transition_matrices(i,
@@ -128,6 +141,73 @@ out_site_dlnl = prep(np.zeros(len(a)), DOUBLE)
 out_site_d2lnl = prep(np.zeros(len(a)), DOUBLE)
 pybeagle.get_site_log_likelihoods(i, out_site_lnl)
 pybeagle.get_site_derivatives(i, out_site_dlnl, out_site_d2lnl)
+
+def adj_br(val):
+    assert pybeagle.update_transition_matrices(i, 0, edge_p_index, edge_dp_index, edge_d2p_index, prep(val, DOUBLE), 1) == 0, 'error'
+    pybeagle.calculate_edge_log_likelihoods(
+                i,
+                parent_index,
+                child_index,
+                edge_p_index,
+                edge_dp_index,
+                edge_d2p_index,
+                cat_index,
+                freq_index,
+                scale_index,
+                1,
+                lnl,
+                dlnl,
+                d2lnl
+        )
+y = []
+for val in np.linspace(0, 2, 201):
+    adj_br(val)
+    logger.info('{} {} {} {}'.format(val, lnl[0], dlnl[0], d2lnl[0]))
+    y.append(lnl[0])
+print y
+###
+# NEWTON RAPHSON
+###
+EPS = 0.00001
+MAXIT = 10
+def optimise_edge(i, edges, pari, chi, edgepi, edgedpi, edged2pi, cati, frqi, sci, lnl, dlnl, d2lnl):
+    assert pybeagle.calculate_edge_log_likelihoods(i, parent_index, child_index, edge_p_index, edge_dp_index, edge_d2p_index, cat_index, freq_index, scale_index, 1, lnl, dlnl, d2lnl)==0, 'error'
+    return nr(i, edges, pari, chi, edgepi, edgedpi, edged2pi, cati, frqi, sci, lnl, dlnl, d2lnl, computations=1, updates=0)
+
+def nr(i, edges, pari, chi, edgepi, edgedpi, edged2pi, cati, frqi, sci, lnl, dlnl, d2lnl, computations=0, updates=0):
+    """
+    Newton-Raphson routine to optimise a single branch length.
+    Assumes that partials are valid at head and tail nodes,
+    and the transition matrix for the branch is up to date.
+    """
+    #pybeagle.calculate_edge_log_likelihoods(i, parent_index, child_index, edge_p_index, edge_dp_index, edge_d2p_index, cat_index, freq_index, scale_index, 1, lnl, dlnl, d2lnl)
+    #computations += 1
+    step = -np.sign(d2lnl)*(dlnl / d2lnl)
+    orig_lnl = 0+lnl
+    it = 0
+    edges[edgepi] -= step
+    while it < MAXIT:
+        logger.info("Edge = {}, lnl = {}, dlnl = {}, d2lnl = {}, step = {}".format(edges[edgepi], lnl, dlnl, d2lnl, step))
+        assert pybeagle.update_transition_matrices(i, 0, edgepi, edgedpi, edged2pi, edges[edgepi], 1)==0, 'error'
+        assert pybeagle.calculate_edge_log_likelihoods(i, parent_index, child_index, edge_p_index, edge_dp_index, edge_d2p_index, cat_index, freq_index, scale_index, 1, lnl, dlnl, d2lnl)==0, 'error'
+        computations += 1
+        updates += 1
+        if lnl > orig_lnl and edges[edgepi] > 0:
+            break
+        else:
+            step *= 0.5
+            edges[edgepi] += step
+            it += 1
+    if it >= MAXIT:
+        logging.warn("MAXIT reached")
+        return lnl, edges[edgepi], computations, updates
+    if np.abs(lnl-orig_lnl) < EPS:
+        return lnl, edges[edgepi], computations, updates
+    else:
+        return nr(i, edges, pari, chi, edgepi, edgedpi, edged2pi, cati, frqi, sci, lnl, dlnl, d2lnl, computations, updates)
+
+#print optimise_edge(i, edge_length, parent_index, child_index, edge_p_index, edge_dp_index, edge_d2p_index, cat_index, freq_index, scale_index, lnl, dlnl, d2lnl)
+
 # print out_site_lnl, out_site_lnl.sum()
 # print out_site_dlnl, out_site_dlnl.sum()
 # print out_site_d2lnl, out_site_d2lnl.sum()

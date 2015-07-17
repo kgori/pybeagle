@@ -28,24 +28,26 @@ class my_build_ext(build_ext):
         binary = self.compiler.compiler[0]
         if is_clang(binary):
             for e in self.extensions:
-                e.extra_compile_args.append('-stdlib=libc++')
+                # e.extra_compile_args.append('-stdlib=libc++')
                 if platform.system() == 'Darwin':
                     e.extra_compile_args.append('-mmacosx-version-min=10.7')
         build_ext.build_extensions(self)
 
 
-compile_args = ['-std=c++1y']
+# compile_args = ['-std=c++1y']
+compile_args = []
 
-data_dir = pkg_resources.resource_filename("autowrap", "data_files")
+# data_dir = pkg_resources.resource_filename("autowrap", "data_files")
 
 pkgconfig_flags = pkgconfig('hmsbeagle-1')
-pkgconfig_flags['include_dirs'].append(data_dir)
+# pkgconfig_flags['include_dirs'].append(data_dir)
 pkgconfig_flags['include_dirs'].extend([numpy.get_include()])
 
 ext = Extension("pybeagle",
                 sources = ['pybeagle.pyx',
-                           'src/beagle_wrapper.cpp'],
-                language="c++",
+                           # 'src/beagle_wrapper.cpp',
+                           'src/structs.c'],
+                language="c",
                 extra_compile_args=compile_args,
                 **pkgconfig_flags
                )
@@ -58,6 +60,11 @@ setup(cmdclass={'build_ext':my_build_ext},
       url='',
       version="0.0.1",
       ext_modules = [ext],
+<<<<<<< Updated upstream
       install_requires = ['autowrap',
                           'cython'],
+=======
+      install_requires = ['cython',
+                          'numpy'],
+>>>>>>> Stashed changes
      )

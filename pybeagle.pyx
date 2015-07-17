@@ -1,17 +1,19 @@
 #cython: c_string_encoding=ascii  # for cython>=0.19
-from  libcpp.string  cimport string as libcpp_string
-from  libcpp.set     cimport set as libcpp_set
-from  libcpp.vector  cimport vector as libcpp_vector
-from  libcpp.pair    cimport pair as libcpp_pair
-from  libcpp.map     cimport map  as libcpp_map
-from  smart_ptr cimport shared_ptr
-from  AutowrapRefHolder cimport AutowrapRefHolder
-from  libcpp cimport bool
+# from  libcpp.string  cimport string as libcpp_string
+# from  libcpp.set     cimport set as libcpp_set
+# from  libcpp.vector  cimport vector as libcpp_vector
+# from  libcpp.pair    cimport pair as libcpp_pair
+# from  libcpp.map     cimport map  as libcpp_map
+# from  smart_ptr cimport shared_ptr
+# from  AutowrapRefHolder cimport AutowrapRefHolder
+# from  libcpp cimport bool
 from  libc.string cimport const_char
+from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference as deref, preincrement as inc, address as address
 cimport pybeagle_h as h
 from pybeagle_h cimport BeagleResource as BeagleResource_wrap
 from pybeagle_h cimport BeagleResourceList as BeagleResourceList_wrap
+from pybeagle_h cimport BeagleInstanceDetails as BeagleInstanceDetails_wrap
 cimport cython 
 import numpy as np
 cimport numpy as np
@@ -19,9 +21,25 @@ cimport numpy as np
 ctypedef np.float64_t DOUBLE
 ctypedef int INT
 
-cdef extern from "autowrap_tools.hpp":
+# Utilities
+cdef extern from "src/structs.h":
     char * _cast_const_away(char *)
 
+<<<<<<< Updated upstream
+=======
+cdef extern from *:
+    ctypedef char* const_char_p "const char*"
+
+cdef bytes toutf8(unicode s):
+     return s.encode('utf-8')
+
+cdef unicode fromutf8(const_char_p s):
+     assert s is not NULL
+     cdef bytes pys = s
+     return pys.decode('utf-8')
+
+# Wrap BeagleFlags enum
+>>>>>>> Stashed changes
 @cython.internal
 cdef class _BeagleFlags:
     cdef:
@@ -124,101 +142,141 @@ cdef class _BeagleOpCodes:
 
 OpCodes = _BeagleOpCodes()
 
+<<<<<<< Updated upstream
 cdef class BeagleInstance:
     cdef shared_ptr[h.beagle_instance] thisptr
+=======
+# Wrap BeagleInstance C++ class
+# cdef class BeagleInstance:
+#     cdef shared_ptr[h.beagle_instance] thisptr
+#     def __dealloc__(self):
+#          self.thisptr.reset()
+
+#     property instance:
+#         def __set__(self,  instance):
+#             self.thisptr.get().instance = (<int>instance)
+#         def __get__(self):
+#             cdef int _r = self.thisptr.get().instance
+#             py_result = <int>_r
+#             return py_result
+
+#     def __init__(self, tipCount, partialsBufferCount, compactBufferCount, stateCount,
+#                  patternCount , eigenBufferCount, matrixBufferCount, categoryCount,
+#                  scaleBufferCount, resourceCount, preferenceFlags, requirementFlags):
+#         assert isinstance(tipCount, (int, long)), 'arg tipCount wrong type'
+#         assert isinstance(partialsBufferCount, (int, long)), 'arg partialsBufferCount wrong type'
+#         assert isinstance(compactBufferCount, (int, long)), 'arg compactBufferCount wrong type'
+#         assert isinstance(stateCount, (int, long)), 'arg stateCount wrong type'
+#         assert isinstance(patternCount, (int, long)), 'arg patternCount wrong type'
+#         assert isinstance(eigenBufferCount, (int, long)), 'arg eigenBufferCount wrong type'
+#         assert isinstance(matrixBufferCount, (int, long)), 'arg matrixBufferCount wrong type'
+#         assert isinstance(categoryCount, (int, long)), 'arg categoryCount wrong type'
+#         assert isinstance(scaleBufferCount, (int, long)), 'arg scaleBufferCount wrong type'
+#         assert isinstance(resourceCount, (int, long)), 'arg resourceCount wrong type'
+#         assert isinstance(preferenceFlags, (int, long)), 'arg preferenceFlags wrong type'
+#         assert isinstance(requirementFlags, (int, long)), 'arg requirementFlags wrong type'
+#         self.thisptr = shared_ptr[h.beagle_instance](new h.beagle_instance((<int>tipCount), (<int>partialsBufferCount), (<int>compactBufferCount), (<int>stateCount), (<int>patternCount), (<int>eigenBufferCount), (<int>matrixBufferCount), (<int>categoryCount), (<int>scaleBufferCount), (<int>resourceCount), (<long int>preferenceFlags), (<long int>requirementFlags)))
+
+# Wrap BeagleInstanceDetails C struct
+cdef class BeagleInstanceDetails:
+    cdef h.BeagleInstanceDetails* thisptr
+
+    def __cinit__(self):
+        self.thisptr = h.BeagleInstanceDetails_new()
+
+>>>>>>> Stashed changes
     def __dealloc__(self):
-         self.thisptr.reset()
+        if self.thisptr is not NULL:
+            h.BeagleInstanceDetails_free(self.thisptr)
 
-    property instance:
-        def __set__(self,  instance):
-            self.thisptr.get().instance = (<int>instance)
+    property resourceNumber:
         def __get__(self):
-            cdef int _r = self.thisptr.get().instance
-            py_result = <int>_r
-            return py_result
+            assert self.thisptr is not NULL
+            return h.BeagleInstanceDetails_get_resourceNumber(self.thisptr)
 
-    def __init__(self, tipCount, partialsBufferCount, compactBufferCount, stateCount,
-                 patternCount , eigenBufferCount, matrixBufferCount, categoryCount,
-                 scaleBufferCount, resourceCount, preferenceFlags, requirementFlags):
-        assert isinstance(tipCount, (int, long)), 'arg tipCount wrong type'
-        assert isinstance(partialsBufferCount, (int, long)), 'arg partialsBufferCount wrong type'
-        assert isinstance(compactBufferCount, (int, long)), 'arg compactBufferCount wrong type'
-        assert isinstance(stateCount, (int, long)), 'arg stateCount wrong type'
-        assert isinstance(patternCount, (int, long)), 'arg patternCount wrong type'
-        assert isinstance(eigenBufferCount, (int, long)), 'arg eigenBufferCount wrong type'
-        assert isinstance(matrixBufferCount, (int, long)), 'arg matrixBufferCount wrong type'
-        assert isinstance(categoryCount, (int, long)), 'arg categoryCount wrong type'
-        assert isinstance(scaleBufferCount, (int, long)), 'arg scaleBufferCount wrong type'
-        assert isinstance(resourceCount, (int, long)), 'arg resourceCount wrong type'
-        assert isinstance(preferenceFlags, (int, long)), 'arg preferenceFlags wrong type'
-        assert isinstance(requirementFlags, (int, long)), 'arg requirementFlags wrong type'
-        self.thisptr = shared_ptr[h.beagle_instance](new h.beagle_instance((<int>tipCount), (<int>partialsBufferCount), (<int>compactBufferCount), (<int>stateCount), (<int>patternCount), (<int>eigenBufferCount), (<int>matrixBufferCount), (<int>categoryCount), (<int>scaleBufferCount), (<int>resourceCount), (<long int>preferenceFlags), (<long int>requirementFlags)))
+    property resourceName:
+        def __get__(self):
+            if self.thisptr is NULL:
+                raise MemoryError("Cannot access pointer that is NULL")
+            val = h.BeagleInstanceDetails_get_resourceName(self.thisptr)
+            if val is NULL: 
+                return ''
+            return fromutf8(val)
+
+    property implName:
+        def __get__(self):
+            if self.thisptr is NULL:
+                raise MemoryError("Cannot access pointer that is NULL")
+            val = h.BeagleInstanceDetails_get_implName(self.thisptr)
+            if val is NULL: 
+                return ''
+            return fromutf8(val)
+
+    property implDescription:
+        def __get__(self):
+            if self.thisptr is NULL:
+                raise MemoryError("Cannot access pointer that is NULL")
+            val = h.BeagleInstanceDetails_get_implDescription(self.thisptr)
+            if val is NULL: 
+                return ''
+            return fromutf8(val)
+
+    property flags:
+        def __get__(self):
+            assert self.thisptr is not NULL
+            return h.BeagleInstanceDetails_get_flags(self.thisptr)
+
 
 cdef class BeagleResource:
-    cdef BeagleResource_wrap* thisptr
+    cdef h.BeagleResource* thisptr
 
-    cdef _setup(self, BeagleResource_wrap* ptr):
+    # def __cinit__(self):
+    #     h.BeagleResource_new()
+
+    cdef _move_construct(self, h.BeagleResource* ptr):
         self.thisptr = ptr
-        self.thisptr.name = ptr.name
-        self.thisptr.description = ptr.description
-        self.thisptr.supportFlags = ptr.supportFlags
-        self.thisptr.requiredFlags = ptr.requiredFlags
-        return self
+
+    def __dealloc__(self):
+        h.BeagleResource_free(self.thisptr)
 
     def __str__(self):
         return '{}: {}\n{}'.format(self.__class__.__name__, self.name, self.description)
 
     property name:
-        def __set__(self, bytes name):
-            self.thisptr.name = (<char *>name)
-
         def __get__(self):
-            if not self.thisptr.name:
-                 raise Exception("Cannot access pointer that is NULL")
-            cdef char  * _r = _cast_const_away(self.thisptr.name)
-            py_result = <char *>(_r)
-            return py_result
+            if self.thisptr is NULL:
+                raise MemoryError("Cannot access pointer that is NULL")
+            val = h.BeagleResource_get_name(self.thisptr)
+            if val is NULL: 
+                return ''
+            return fromutf8(val)
 
     property description:
-        def __set__(self, bytes description):
-            self.thisptr.description = (<char *>description)
-
         def __get__(self):
-            if not self.thisptr.description:
-                 raise Exception("Cannot access pointer that is NULL")
-            cdef char  * _r = _cast_const_away(self.thisptr.description)
-            py_result = <char *>(_r)
-            return py_result
+            if self.thisptr is NULL:
+                raise MemoryError("Cannot access pointer that is NULL")
+            val = h.BeagleResource_get_description(self.thisptr)
+            if val is NULL: 
+                return ''
+            return fromutf8(val)
 
     property supportFlags:
-        def __set__(self, long supportFlags):
-            self.thisptr.supportFlags= (<long>supportFlags)
-
         def __get__(self):
-            if not self.thisptr.supportFlags:
-                 raise Exception("Cannot access pointer that is NULL")
-            _r = self.thisptr.supportFlags
-            py_result = _r
-            return py_result
+            assert self.thisptr is not NULL
+            return h.BeagleResource_get_supportFlags(self.thisptr)
 
     property requiredFlags:
-        def __set__(self, bytes requiredFlags):
-            self.thisptr.requiredFlags = (<long>requiredFlags)
-
         def __get__(self):
-            if not self.thisptr.requiredFlags:
-                 raise Exception("Cannot access pointer that is NULL")
-            _r = self.thisptr.requiredFlags
-            py_result = _r
-            return py_result
+            assert self.thisptr is not NULL
+            return h.BeagleResource_get_requiredFlags(self.thisptr)
 
 cdef _convert_resource_list():
-    cdef BeagleResourceList_wrap* rl = h.beagleGetResourceList()
+    cdef h.BeagleResourceList* rl = h.beagleGetResourceList()
     l = []
     for i in range(rl.length):
-        br = BeagleResource()._setup(address(rl.list[i]))
+        br = BeagleResource()._move_construct(address(rl.list[i])) # is this safe? 
         l.append(br)
-    return l
+    return np.ndarray(l, dtype=np.intc)
 
 # PYX definitions of beagle functions
 def get_version():
@@ -230,6 +288,10 @@ def get_citation():
     cdef const_char *retval = _cast_const_away(h.beagleGetCitation())
     py_result = <const_char *>(retval)
     return py_result
+
+def create_instance(int tipCount, int partialsBufferCount, int compactBufferCount, int stateCount, int patternCount, int eigenBufferCount, int matrixBufferCount, int categoryCount, int scaleBufferCount, int resourceCount, long preferenceFlags, long requirementFlags, BeagleInstanceDetails returnInfo):
+    retval = h.beagleCreateInstance(tipCount, partialsBufferCount, compactBufferCount, stateCount, patternCount, eigenBufferCount, matrixBufferCount, categoryCount, scaleBufferCount, NULL, resourceCount, preferenceFlags, requirementFlags, returnInfo.thisptr)
+    return retval
 
 def set_tip_states(int instance, int tip_index, np.ndarray[INT,ndim=1] in_states):
     """
@@ -335,9 +397,9 @@ def set_transition_matrices(int instance, np.ndarray[INT, ndim=1] matrixIndices,
     retval = h.beagleSetTransitionMatrices(instance, <int*>matrixIndices.data, <double*>inMatrices.data, <double*>paddedValues.data, count)
     return retval
 
-def update_partials(const int instance, np.ndarray[INT, ndim=1, mode='c'] operations, int operationCount, int cumulativeScaleIndex):
-    retval = h.beagle_update_partials(instance, <int*>operations.data, operationCount, cumulativeScaleIndex)
-    return retval
+# def update_partials(const int instance, np.ndarray[INT, ndim=1, mode='c'] operations, int operationCount, int cumulativeScaleIndex):
+#     retval = h.beagleUpdatePartials(instance, <h.BeagleOperation*>operations.data, operationCount, cumulativeScaleIndex)
+#     return retval
 
 def wait_for_partials(const int instance, np.ndarray[INT, ndim=1] destinationPartials, int destinationPartialsCount):
     retval = h.beagleWaitForPartials(instance, <int*>destinationPartials.data, destinationPartialsCount)
@@ -382,3 +444,8 @@ def get_site_derivatives(int instance, np.ndarray[DOUBLE, ndim=1] outFirstDeriva
 def get_resource_list():
     l = _convert_resource_list()
     return l
+
+import atexit
+@atexit.register
+def finalize():
+    h.beagleFinalize()
