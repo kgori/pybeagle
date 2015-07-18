@@ -1,12 +1,4 @@
 #cython: c_string_encoding=ascii  # for cython>=0.19
-# from  libcpp.string  cimport string as libcpp_string
-# from  libcpp.set     cimport set as libcpp_set
-# from  libcpp.vector  cimport vector as libcpp_vector
-# from  libcpp.pair    cimport pair as libcpp_pair
-# from  libcpp.map     cimport map  as libcpp_map
-# from  smart_ptr cimport shared_ptr
-# from  AutowrapRefHolder cimport AutowrapRefHolder
-# from  libcpp cimport bool
 from  libc.string cimport const_char
 from libc.stdlib cimport malloc, free
 from cython.operator cimport dereference as deref, preincrement as inc, address as address
@@ -22,7 +14,7 @@ ctypedef np.float64_t DOUBLE
 ctypedef int INT
 
 # Utilities
-cdef extern from "src/structs.h":
+cdef extern from "src/beagle_wrapper.h":
     char * _cast_const_away(char *)
 
 cdef extern from *:

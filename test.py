@@ -20,9 +20,9 @@ INT = np.intc
 print pybeagle.get_citation()
 
 
-# resources = pybeagle.get_resource_list()
-# for r in resources:
-#     print r
+resources = pybeagle.get_resource_list()
+for r in resources:
+    print r
 
 
 def prep(l, astype):
@@ -147,7 +147,7 @@ pybeagle.calculate_edge_log_likelihoods(
             dlnl,
             d2lnl
     )
-print lnl, dlnl, d2lnl
+logger.info("Likelihood result: lnl={} dlnl/dt={} d2lnl/dt2={}".format(lnl[0], dlnl[0], d2lnl[0]))
 
 out_partials = prep(np.zeros(partials_a.size), DOUBLE)
 pybeagle.get_partials(i, 7, -1, out_partials)
@@ -175,12 +175,12 @@ def adj_br(val):
                 dlnl,
                 d2lnl
         )
-y = []
-for val in np.linspace(0, 2, 201):
-    adj_br(val)
-    logger.info('{} {} {} {}'.format(val, lnl[0], dlnl[0], d2lnl[0]))
-    y.append(lnl[0])
-print y
+# y = []
+# for val in np.linspace(0, 2, 201):
+#     adj_br(val)
+#     logger.debug('{} {} {} {}'.format(val, lnl[0], dlnl[0], d2lnl[0]))
+#     y.append(lnl[0])
+# print y
 ###
 # NEWTON RAPHSON
 ###
@@ -203,7 +203,7 @@ def nr(i, edges, pari, chi, edgepi, edgedpi, edged2pi, cati, frqi, sci, lnl, dln
     it = 0
     edges[edgepi] -= step
     while it < MAXIT:
-        logger.info("Edge = {}, lnl = {}, dlnl = {}, d2lnl = {}, step = {}".format(edges[edgepi], lnl, dlnl, d2lnl, step))
+        logger.debug("Edge = {}, lnl = {}, dlnl = {}, d2lnl = {}, step = {}".format(edges[edgepi], lnl, dlnl, d2lnl, step))
         assert pybeagle.update_transition_matrices(i, 0, edgepi, edgedpi, edged2pi, edges[edgepi], 1)==0, 'error'
         assert pybeagle.calculate_edge_log_likelihoods(i, parent_index, child_index, edge_p_index, edge_dp_index, edge_d2p_index, cat_index, freq_index, scale_index, 1, lnl, dlnl, d2lnl)==0, 'error'
         computations += 1

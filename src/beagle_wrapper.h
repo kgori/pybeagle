@@ -1,5 +1,5 @@
-#ifndef __BEAGLE_STRUCTS__
-#define __BEAGLE_STRUCTS__
+#ifndef __BEAGLE_WRAPPER__
+#define __BEAGLE_WRAPPER__
 #include <libhmsbeagle/beagle.h>
 
 #define BEAGLEINSTANCEDETAILS(x) \
@@ -46,4 +46,4 @@ inline char * _cast_const_away(const char *p)
 
 int beagle_update_partials(const int instance, const int* operations, int operationCount, int cumulativeScaleIndex);
 
-#endif  //__BEAGLE_STRUCTS__
+#endif  //__BEAGLE_WRAPPER__

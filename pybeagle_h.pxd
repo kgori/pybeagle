@@ -1,7 +1,3 @@
-# from  libcpp.string  cimport string as libcpp_string
-# from  libcpp.vector  cimport vector as libcpp_vector
-# from  libcpp.pair    cimport pair   as libcpp_pair
-# from  libcpp cimport bool
 from  libc.string cimport const_char
 import numpy as np
 cimport numpy as np
@@ -113,7 +109,7 @@ cdef extern from "libhmsbeagle/beagle.h":
     int beagleFinalizeInstance(int instance)
     int beagleFinalize()
 
-cdef extern from "src/structs.h":
+cdef extern from "src/beagle_wrapper.h":
     int beagle_update_partials(const int instance, const int* operations, int operationCount, int cumulativeScaleIndex)
 #     cdef cppclass beagle_instance:
 #         beagle_instance(int tipCount, int partialsBufferCount, int compactBufferCount, int stateCount, int patternCount, int eigenBufferCount, int matrixBufferCount, int categoryCount, int scaleBufferCount, int resourceCount, long preferenceFlags, long requirementFlags)

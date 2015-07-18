@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "structs.h"
+#include "beagle_wrapper.h"
 
 // BeagleInstanceDetails boilerplate
 BeagleInstanceDetails* BeagleInstanceDetails_new() {
