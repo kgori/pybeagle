@@ -60,11 +60,8 @@ setup(cmdclass={'build_ext':my_build_ext},
       url='',
       version="0.0.1",
       ext_modules = [ext],
-<<<<<<< Updated upstream
-      install_requires = ['autowrap',
-                          'cython'],
-=======
+
       install_requires = ['cython',
                           'numpy'],
->>>>>>> Stashed changes
+
      )

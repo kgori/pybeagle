@@ -1,18 +1,24 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include "structs.h"
 
 // BeagleInstanceDetails boilerplate
 BeagleInstanceDetails* BeagleInstanceDetails_new() {
+    printf("BeagleInstanceDetails_new\n");
     BeagleInstanceDetails* ptr = malloc(sizeof(*ptr));
+    BEAGLEINSTANCEDETAILSVALID(ptr);
     *ptr = (BeagleInstanceDetails){0};
+    printf("PTR resourceNumber is 0? %s\n", ptr->resourceNumber == 0 ? "TRUE" : "FALSE");
+    printf("PTR resourceName is '\\0'? %s\n", ptr->resourceName == '\0' ? "TRUE" : "FALSE");
+    printf("PTR implName is '\\0'? %s\n", ptr->implName == '\0' ? "TRUE" : "FALSE");
+    printf("PTR implDescription is '\\0'? %s\n", ptr->implDescription == '\0' ? "TRUE" : "FALSE");
+    printf("PTR flags is 0? %s\n", ptr->flags == 0 ? "TRUE" : "FALSE");
+    return ptr;
 }
 void BeagleInstanceDetails_free(BeagleInstanceDetails* ptr) {
     if (NULL != ptr) {
-        if (NULL != ptr->resourceName) free(ptr->resourceName);
-        if (NULL != ptr->implName) free(ptr->implName);
-        if (NULL != ptr->implDescription) free(ptr->implDescription);
-        free(ptr);
+        free(ptr);  // don't free struct's char* members - they are owned by the beagle lib (I think)
     }
 }
 int BeagleInstanceDetails_get_resourceNumber(BeagleInstanceDetails* ptr) {
@@ -40,6 +46,7 @@ long BeagleInstanceDetails_get_flags(BeagleInstanceDetails* ptr) {
 BeagleResource* BeagleResource_new() {
     BeagleResource* ptr = malloc(sizeof(*ptr));
     *ptr = (BeagleResource){0};
+    return ptr;
 }
 void BeagleResource_free(BeagleResource* ptr) {
     if (NULL != ptr) {
@@ -77,6 +84,7 @@ long BeagleResource_get_requiredFlags(BeagleResource* ptr) {
 BeagleOperation* BeagleOperation_new() {
     BeagleOperation* ptr = malloc(sizeof(*ptr));
     *ptr = (BeagleOperation){0};
+    return ptr;
 }
 void BeagleOperation_free(BeagleOperation* ptr) {
     if (NULL != ptr) free(ptr);

@@ -99,7 +99,7 @@ cdef extern from "libhmsbeagle/beagle.h":
     int beagleSetTransitionMatrix(int instance, int matrixIndex, const double* inMatrix, double paddedValue)
     int beagleGetTransitionMatrix(int instance, int matrixIndex, double* outMatrix)
     int beagleSetTransitionMatrices(int instance, const int* matrixIndices, const double* inMatrices, const double* paddedValues, int count)
-    # int beagleUpdatePartials(const int instance, const BeagleOperation* operations, int operationCount, int cumulativeScaleIndex)
+    int beagleUpdatePartials(const int instance, const BeagleOperation* operations, int operationCount, int cumulativeScaleIndex)
     int beagleWaitForPartials(const int instance, const int* destinationPartials, int destinationPartialsCount)
     int beagleAccumulateScaleFactors(int instance, const int* scaleIndices, int count, int cumulativeScaleIndex)
     int beagleRemoveScaleFactors(int instance, const int* scaleIndices, int count, int cumulativeScaleIndex)
@@ -110,6 +110,7 @@ cdef extern from "libhmsbeagle/beagle.h":
     int beagleCalculateEdgeLogLikelihoods(int instance, const int* parentBufferIndices, const int* childBufferIndices, const int* probabilityIndices, const int* firstDerivativeIndices, const int* secondDerivativeIndices, const int* categoryWeightsIndices, const int* stateFrequenciesIndices, const int* cumulativeScaleIndices, int count, double* outSumLogLikelihood, double* outSumFirstDerivative, double* outSumSecondDerivative)
     int beagleGetSiteLogLikelihoods(int instance, double* outLogLikelihoods)
     int beagleGetSiteDerivatives(int instance, double* outFirstDerivatives, double* outSecondDerivatives)
+    int beagleFinalizeInstance(int instance)
     int beagleFinalize()
 
 cdef extern from "src/structs.h":

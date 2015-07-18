@@ -48,29 +48,42 @@ partials_c = prep([converter.get(x, np.array([1.0, 1.0, 1.0, 1.0])) for x in c],
 partials_d = prep([converter.get(x, np.array([1.0, 1.0, 1.0, 1.0])) for x in d], astype=DOUBLE)
 partials_e = prep([converter.get(x, np.array([1.0, 1.0, 1.0, 1.0])) for x in e], astype=DOUBLE)
 
-i = pybeagle.BeagleInstanceDetails()
-pybeagle.create_instance(5,8,0,4,200,1,21,4,0,1,0,0,i)
+
+logger.info("Creating BeagleInstanceDetails")
+bi = pybeagle.BeagleInstanceDetails()
+logger.info("Initialising BeagleInstanceDetails")
+pybeagle.create_instance(5,8,0,4,200,1,21,4,0,1,0,0,bi)
+logger.info("Resource number: {}".format(bi.resourceNumber))
+logger.info("Resource name: {}".format(bi.resourceName))
+logger.info("Impl name: {}".format(bi.implName))
+logger.info("Impl description: {}".format(bi.implDescription))
+logger.info("Flags: {}".format(bi.flags))
+i = bi.resourceNumber
 
 BEAGLE_OP_NONE = pybeagle.OpCodes.OP_NONE
 
-
+logger.info("Setting tip partials")
 assert pybeagle.set_tip_partials(i, 0, partials_a) == 0, 'Error'
 assert pybeagle.set_tip_partials(i, 1, partials_b) == 0, 'Error'
 assert pybeagle.set_tip_partials(i, 2, partials_c) == 0, 'Error'
 assert pybeagle.set_tip_partials(i, 3, partials_d) == 0, 'Error'
 assert pybeagle.set_tip_partials(i, 4, partials_e) == 0, 'Error'
 
+logger.info("Setting pattern weights")
 patt_weights = prep([1.0 for _ in a], astype=DOUBLE)
 assert pybeagle.set_pattern_weights(i, patt_weights) == 0, 'Error'
 
+logger.info("Setting frequencies")
 freq = prep([0.3591448418303572,0.17990592923287677,0.30088911954606995,0.1600601093906961], astype=DOUBLE)
 assert pybeagle.set_state_frequencies(i, 0, freq) == 0, 'Error'
 
+logger.info("Setting cat weights and rates")
 cat_weights = prep([0.25, 0.25, 0.25, 0.25], astype=DOUBLE)
 cat_rates = prep([0.2932747160378261, 0.6550136762040464, 1.0699896621148572, 1.9817219456432702], astype=DOUBLE)
 assert pybeagle.set_category_weights(i, 0, cat_weights) == 0, 'Error'
 assert pybeagle.set_category_rates(i, cat_rates) == 0, 'Error'
 
+logger.info("Setting eigenvectors and values")
 evec = prep([[-0.203, -0.001,  0.673,  0.5],
                             [ 0.934,  0.003, -0.003,  0.5],
                             [-0.205, -0.47 , -0.523,  0.5],
@@ -91,6 +104,7 @@ edge_index_d1 = prep(edge_index + 7, astype=INT)
 edge_index_d2 = prep(edge_index + 14, astype=INT)
 edge_length = prep([0.0809704656376, 0.256065681235, 0.275250715264, 0.766145237663, 0.580351497411, 0.34826964074, 0.69649788029], astype=DOUBLE)
 
+logger.info("Updating all transition matrices")
 assert pybeagle.update_transition_matrices(i,
                                            0,
                                            edge_index,
@@ -99,6 +113,7 @@ assert pybeagle.update_transition_matrices(i,
                                            edge_length,
                                            7) == 0, 'Error'
 
+logger.info("Updating partials")
 operations = prep([5, BEAGLE_OP_NONE, BEAGLE_OP_NONE, 0, 0, 1, 1,
                    6, BEAGLE_OP_NONE, BEAGLE_OP_NONE, 5, 5, 2, 2,
                    7, BEAGLE_OP_NONE, BEAGLE_OP_NONE, 3, 3, 4, 4], astype=INT)
@@ -116,6 +131,7 @@ lnl = prep([0], DOUBLE)
 dlnl = prep([0], DOUBLE)
 d2lnl = prep([0], DOUBLE)
 
+logger.info("Calculating edge log-likelihood")
 pybeagle.calculate_edge_log_likelihoods(
             i,
             parent_index,
