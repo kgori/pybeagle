@@ -2,18 +2,22 @@
 #include <stdio.h>
 #include <assert.h>
 #include "beagle_wrapper.h"
-
+// #define DEBUG
 // BeagleInstanceDetails boilerplate
 BeagleInstanceDetails* BeagleInstanceDetails_new() {
+    #ifdef DEBUG
     printf("BeagleInstanceDetails_new\n");
+    #endif
     BeagleInstanceDetails* ptr = malloc(sizeof(*ptr));
     BEAGLEINSTANCEDETAILSVALID(ptr);
     *ptr = (BeagleInstanceDetails){0};
+    #ifdef DEBUG
     printf("PTR resourceNumber is 0? %s\n", ptr->resourceNumber == 0 ? "TRUE" : "FALSE");
     printf("PTR resourceName is '\\0'? %s\n", ptr->resourceName == '\0' ? "TRUE" : "FALSE");
     printf("PTR implName is '\\0'? %s\n", ptr->implName == '\0' ? "TRUE" : "FALSE");
     printf("PTR implDescription is '\\0'? %s\n", ptr->implDescription == '\0' ? "TRUE" : "FALSE");
     printf("PTR flags is 0? %s\n", ptr->flags == 0 ? "TRUE" : "FALSE");
+    #endif
     return ptr;
 }
 void BeagleInstanceDetails_free(BeagleInstanceDetails* ptr) {
@@ -45,15 +49,23 @@ long BeagleInstanceDetails_get_flags(BeagleInstanceDetails* ptr) {
 // BeagleResource boilerplate
 BeagleResource* BeagleResource_new() {
     BeagleResource* ptr = malloc(sizeof(*ptr));
+    BEAGLERESOURCEVALID(ptr);
     *ptr = (BeagleResource){0};
     return ptr;
 }
 void BeagleResource_free(BeagleResource* ptr) {
+    #ifdef DEBUG
+    printf("BeagleResource_free\n");
+    #endif
     if (NULL != ptr) {
-        if (NULL != ptr->name) free(ptr->name);
-        if (NULL != ptr->description) free(ptr->description);
+        #ifdef DEBUG
+        printf("Free ptr\n");
+        #endif
         free(ptr);
     }
+    #ifdef DEBUG
+    printf("BeagleResource_free - exit -\n");
+    #endif
 }
 char* BeagleResource_get_name(BeagleResource* ptr) {
     BEAGLERESOURCEVALID(ptr);
@@ -72,14 +84,6 @@ long BeagleResource_get_requiredFlags(BeagleResource* ptr) {
     return ptr->requiredFlags;
 }
 
-// BeagleResourceList* BeagleResourceList_new() {
-//     BeagleResourceList* ptr = malloc(sizeof(*ptr));
-//     *ptr = (BeagleResourceList){0};
-// }
-// void BeagleResourceList_free(BeagleResourceList* ptr) {}
-// BeagleResource* BeagleResourceList_get_list() {}
-// int BeagleResourceList_get_length() {}
-
 // BeagleOperation boilerplate
 BeagleOperation* BeagleOperation_new() {
     BeagleOperation* ptr = malloc(sizeof(*ptr));
@@ -89,14 +93,6 @@ BeagleOperation* BeagleOperation_new() {
 void BeagleOperation_free(BeagleOperation* ptr) {
     if (NULL != ptr) free(ptr);
 }
-//     int destinationPartials;    /**< index of destination, or parent, partials buffer  */
-//     int destinationScaleWrite;  /**< index of scaling buffer to write to (if set to BEAGLE_OP_NONE then calculation of new scalers is disabled)  */
-//     int destinationScaleRead;   /**< index of scaling buffer to read from (if set to BEAGLE_OP_NONE then use of existing scale factors is disabled)  */
-//     int child1Partials;         /**< index of first child partials buffer */
-//     int child1TransitionMatrix; /**< index of transition matrix of first partials child buffer  */
-//     int child2Partials;         /**< index of second child partials buffer */
-//     int child2TransitionMatrix; /**< index of transition matrix of second partials child buffer */
-// } BeagleOperation;
 
 int beagle_update_partials(const int instance, const int* operations, int operationCount, int cumulativeScaleIndex) {
     BeagleOperation bops[operationCount];

@@ -221,7 +221,7 @@ def nr(i, edges, pari, chi, edgepi, edgedpi, edged2pi, cati, frqi, sci, lnl, dln
         return lnl, edges[edgepi], computations, updates
     else:
         return nr(i, edges, pari, chi, edgepi, edgedpi, edged2pi, cati, frqi, sci, lnl, dlnl, d2lnl, computations, updates)
-
+pybeagle.finalize()
 #print optimise_edge(i, edge_length, parent_index, child_index, edge_p_index, edge_dp_index, edge_d2p_index, cat_index, freq_index, scale_index, lnl, dlnl, d2lnl)
 
 # print out_site_lnl, out_site_lnl.sum()

@@ -11,6 +11,8 @@ import subprocess
 import commands
 import numpy
 
+BUILD_DEBUG = False
+
 def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     for token in commands.getoutput("pkg-config --libs --cflags %s" % ' '.join(packages)).split():
@@ -32,8 +34,7 @@ class my_build_ext(build_ext):
                     e.extra_compile_args.append('-mmacosx-version-min=10.7')
         build_ext.build_extensions(self)
 
-
-compile_args = []
+compile_args = ['-O0 -g'] if BUILD_DEBUG else []
 
 pkgconfig_flags = pkgconfig('hmsbeagle-1')
 pkgconfig_flags['include_dirs'].extend([numpy.get_include()])

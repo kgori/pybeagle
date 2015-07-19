@@ -148,11 +148,11 @@ cdef class BeagleInstanceDetails:
     def __cinit__(self):
         self.thisptr = h.BeagleInstanceDetails_new()
 
-    def __dealloc__(self):
-        if self.thisptr is not NULL:
-            #finalize_instance(self.resourceNumber)
-            # MEMORY ERROR WITH THIS FN
-            h.BeagleInstanceDetails_free(self.thisptr)
+    # def __dealloc__(self):
+    #     if self.thisptr is not NULL:
+    #         #finalize_instance(self.resourceNumber)
+    #         # MEMORY ERROR WITH THIS FN
+            # h.BeagleInstanceDetails_free(self.thisptr)
 
     property resourceNumber:
         def __get__(self):
@@ -196,14 +196,10 @@ cdef class BeagleInstanceDetails:
 cdef class BeagleResource:
     cdef h.BeagleResource* thisptr
 
-    # def __cinit__(self):
-    #     h.BeagleResource_new()
-
-    cdef _move_construct(self, h.BeagleResource* ptr):
+    cdef _create(self, h.BeagleResource* ptr):
+        # doesn't imply ownership, so don't free
         self.thisptr = ptr
-
-    def __dealloc__(self):
-        h.BeagleResource_free(self.thisptr)
+        return self
 
     def __str__(self):
         return '{}: {}\n{}'.format(self.__class__.__name__, self.name, self.description)
@@ -238,11 +234,8 @@ cdef class BeagleResource:
 
 cdef _convert_resource_list():
     cdef h.BeagleResourceList* rl = h.beagleGetResourceList()
-    l = []
-    for i in range(rl.length):
-        br = BeagleResource()._move_construct(address(rl.list[i])) # is this safe? 
-        l.append(br)
-    return np.ndarray(l, dtype=np.intc)
+    return [BeagleResource()._create(address(rl.list[i])) for i in range(rl.length)]
+
 
 # PYX definitions of beagle functions
 def get_version():
@@ -447,7 +440,7 @@ def finalize_instance(int instance):
     retval = h.beagleFinalizeInstance(instance)
     return retval
 
-import atexit
-@atexit.register
+# import atexit
+# @atexit.register
 def finalize():
     h.beagleFinalize()
