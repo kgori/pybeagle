@@ -38,12 +38,6 @@ long BeagleResource_get_requiredFlags(BeagleResource* ptr);
 
 BeagleOperation* BeagleOperation_new();
 void BeagleOperation_free(BeagleOperation* ptr);
-
-inline char * _cast_const_away(const char *p)
-{
-    return (char *)(p);
-}
-
 int beagle_update_partials(const int instance, const int* operations, int operationCount, int cumulativeScaleIndex);
 
 #endif  //__BEAGLE_WRAPPER__

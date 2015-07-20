@@ -14,9 +14,6 @@ ctypedef np.float64_t DOUBLE
 ctypedef int INT
 
 # Utilities
-cdef extern from "src/beagle_wrapper.h":
-    char * _cast_const_away(char *)
-
 cdef extern from *:
     ctypedef char* const_char_p "const char*"
 
@@ -239,14 +236,10 @@ cdef _convert_resource_list():
 
 # PYX definitions of beagle functions
 def get_version():
-    cdef const_char *retval = _cast_const_away(h.beagleGetVersion())
-    py_result = <const_char *>(retval)
-    return py_result
+    return fromutf8(h.beagleGetVersion())
 
 def get_citation():
-    cdef const_char *retval = _cast_const_away(h.beagleGetCitation())
-    py_result = <const_char *>(retval)
-    return py_result
+    return fromutf8(h.beagleGetCitation())
 
 def create_instance(int tipCount, int partialsBufferCount, int compactBufferCount, int stateCount, int patternCount, int eigenBufferCount, int matrixBufferCount, int categoryCount, int scaleBufferCount, int resourceCount, long preferenceFlags, long requirementFlags, BeagleInstanceDetails returnInfo):
     retval = h.beagleCreateInstance(tipCount, partialsBufferCount, compactBufferCount, stateCount, patternCount, eigenBufferCount, matrixBufferCount, categoryCount, scaleBufferCount, NULL, resourceCount, preferenceFlags, requirementFlags, returnInfo.thisptr)
