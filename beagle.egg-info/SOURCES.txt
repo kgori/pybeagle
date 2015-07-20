@@ -1,8 +1,0 @@
-pybeagle.pyx
-setup.py
-beagle.egg-info/PKG-INFO
-beagle.egg-info/SOURCES.txt
-beagle.egg-info/dependency_links.txt
-beagle.egg-info/requires.txt
-beagle.egg-info/top_level.txt
-src/beagle_wrapper.cpp

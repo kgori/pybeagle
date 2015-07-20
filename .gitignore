@@ -1,5 +1,7 @@
 build/
 docs/_build
+*.egg-info/*
+dist/*
 pybeagle.c
 pybeagle.so
 cython_debug
